@@ -340,6 +340,7 @@
     </div>
 
     <div class="controls">
+      <button id="btn-home">主頁</button>
       <button id="btn-new">重新開始</button>
       <button id="btn-pause">暫停</button>
       <button id="btn-resume" style="display:none;">繼續</button>
@@ -488,6 +489,7 @@
     const btnNew = document.getElementById('btn-new');
     const btnPause = document.getElementById('btn-pause');
     const btnResume = document.getElementById('btn-resume');
+    const btnHome = document.getElementById('btn-home');
     const pairCountSelect = document.getElementById('pair-count');
     const answerContainerEl = document.getElementById('answer-container');
 
@@ -827,6 +829,11 @@
       btnPause.style.display = '';
       btnResume.style.display = 'none';
       statusEl.textContent = '請翻開兩張卡牌進行配對';
+    });
+    
+     // 主頁按鈕事件
+    btnHome.addEventListener('click', () => {
+      window.location.href = "https://wongonkei825-alt.github.io/MBC/1-400_home_page.html";
     });
     
     // 難度選擇事件
