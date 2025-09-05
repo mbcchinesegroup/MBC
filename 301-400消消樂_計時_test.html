@@ -340,6 +340,7 @@
     </div>
 
     <div class="controls">
+      <button id="btn-home">主頁</button>
       <button id="btn-new">重新開始</button>
       <button id="btn-pause">暫停</button>
       <button id="btn-resume" style="display:none;">繼續</button>
@@ -446,21 +447,21 @@
 { "id": 383, "text": "周郎妙計安天下，賠了夫人又折兵。", "source": "羅貫中《三國演義》" },
 { "id": 384, "text": "明日復明日，明日何其多。我生待明日，萬事成蹉跎。", "source": "錢福《明日歌》" },
 { "id": 385, "text": "粉身碎骨渾不怕，要留清白在人間。", "source": "于謙《石灰吟》" },
-{"id": "386", "text": "但願蒼生俱飽暖，不辭辛苦出山林。", "source": "于謙《詠煤炭》"},
-{ "id": "387", "text": "世事洞明皆學問，人情練達即文章。", "source": "曹雪芹《紅樓夢》" },
-{ "id": "388", "text": "友如作畫須求淡，山似論文不喜平。", "source": "翁照《尚湖晚步》" },
-{ "id": "389", "text": "千磨萬擊還堅勁，任爾東西南北風。", "source": "鄭燮《竹石》" },
-{ "id": "390", "text": "海納百川，有容乃大；壁立千仞，無欲則剛。", "source": "林則徐・對聯" },
-{ "id": "391", "text": "天下興亡，匹夫有責。", "source": "顧炎武《日知錄》" },
-{ "id": "392", "text": "落紅不是無情物，化作春泥更護花。", "source": "龔自珍《己亥雜詩》" },
-{ "id": "393", "text": "九州生氣恃風雷，萬馬齊喑究可哀。", "source": "龔自珍《己亥雜詩》" },
-{ "id": "394", "text": "我勸天公重抖擻，不拘一格降人才。", "source": "龔自珍《己亥雜詩》" },
-{ "id": "395", "text": "我自橫刀向天笑，去留肝膽兩崑崙。", "source": "譚嗣同《獄中題壁》" },
-{ "id": "396", "text": "江山代有才人出，各領風騷數百年。", "source": "趙翼《論詩五首》" },
-{ "id": "397", "text": "橫眉冷對千夫指，俯首甘為孺子牛。", "source": "魯迅《自嘲》" },
-{ "id": "398", "text": "寄意寒星荃不察，我以我血薦軒轅。", "source": "魯迅《自題小像》" },
-{ "id": "399", "text": "俏也不爭春，只把春來報。待到山花爛漫時，她在叢中笑。", "source": "毛澤東《卜算子・詠梅》" },
-{ "id": "400", "text": "天若有情天亦老，人間正道是滄桑。", "source": "毛澤東《七律・人民解放軍占領南京》" }
+{ "id": 386, "text": "但願蒼生俱飽暖，不辭辛苦出山林。", "source": "于謙《詠煤炭》"},
+{ "id": 387, "text": "世事洞明皆學問，人情練達即文章。", "source": "曹雪芹《紅樓夢》" },
+{ "id": 388, "text": "友如作畫須求淡，山似論文不喜平。", "source": "翁照《尚湖晚步》" },
+{ "id": 389, "text": "千磨萬擊還堅勁，任爾東西南北風。", "source": "鄭燮《竹石》" },
+{ "id": 390, "text": "海納百川，有容乃大；壁立千仞，無欲則剛。", "source": "林則徐・對聯" },
+{ "id": 391, "text": "天下興亡，匹夫有責。", "source": "顧炎武《日知錄》" },
+{ "id": 392, "text": "落紅不是無情物，化作春泥更護花。", "source": "龔自珍《己亥雜詩》" },
+{ "id": 393, "text": "九州生氣恃風雷，萬馬齊喑究可哀。", "source": "龔自珍《己亥雜詩》" },
+{ "id": 394, "text": "我勸天公重抖擻，不拘一格降人才。", "source": "龔自珍《己亥雜詩》" },
+{ "id": 395, "text": "我自橫刀向天笑，去留肝膽兩崑崙。", "source": "譚嗣同《獄中題壁》" },
+{ "id": 396, "text": "江山代有才人出，各領風騷數百年。", "source": "趙翼《論詩五首》" },
+{ "id": 397, "text": "橫眉冷對千夫指，俯首甘為孺子牛。", "source": "魯迅《自嘲》" },
+{ "id": 398, "text": "寄意寒星荃不察，我以我血薦軒轅。", "source": "魯迅《自題小像》" },
+{ "id": 399, "text": "俏也不爭春，只把春來報。待到山花爛漫時，她在叢中笑。", "source": "毛澤東《卜算子・詠梅》" },
+{ "id": 400, "text": "天若有情天亦老，人間正道是滄桑。", "source": "毛澤東《七律・人民解放軍占領南京》" }
      ];
 
     // 遊戲狀態
@@ -488,6 +489,7 @@
     const btnNew = document.getElementById('btn-new');
     const btnPause = document.getElementById('btn-pause');
     const btnResume = document.getElementById('btn-resume');
+    const btnResume = document.getElementById('btn-home');
     const pairCountSelect = document.getElementById('pair-count');
     const answerContainerEl = document.getElementById('answer-container');
 
@@ -827,6 +829,11 @@
       btnPause.style.display = '';
       btnResume.style.display = 'none';
       statusEl.textContent = '請翻開兩張卡牌進行配對';
+    });
+    
+     // 主頁按鈕事件
+    btnHome.addEventListener('click', () => {
+      window.location.href = "https://wongonkei825-alt.github.io/MBC/1-400_home_page.html";
     });
     
     // 難度選擇事件
