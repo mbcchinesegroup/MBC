@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>101-200名句配對消消樂遊戲</title>
+  <style>
+    body {
+      font-family: "Microsoft JhengHei", Arial, sans-serif;
+      background: linear-gradient(135deg, #f4f8fb 0%, #e0eaf8 100%);
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh;
+    }
+    h1 { 
+      margin: 20px 0 6px; 
+      color: #1976d2;
+      text-align: center;
+    }
+    .container {
+      width: 95%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px 18px;
+      margin: 6px 12px 10px;
+      font-size: 16px;
+      width: 100%;
+    }
+    .stat {
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      min-width: 120px;
+      text-align: center;
+      border-left: 4px solid #1976d2;
+    }
+    #status { 
+      margin: 6px 0 10px; 
+      font-size: 18px; 
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.7);
+      border-radius: 20px;
+    }
+    .game-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      max-width: 1000px;
+      width: 100%;
+      margin: 10px auto 20px;
+    }
+    .card {
+      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+      color: #fff;
+      border-radius: 10px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      user-select: none;
+      padding: 10px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .card:active { transform: scale(0.98); }
+    .card.flipped {
+      background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+      color: #222;
+      cursor: default;
+    }
+    .card.matched {
+      background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+      color: #2e7d32;
+      cursor: default;
+      box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+    }
+    .card.mismatched {
+      background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+      color: #c62828;
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backface-visibility: hidden;
+      transition: transform 0.6s;
+      border-radius: 10px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .card-front {
+      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+      color: white;
+      font-weight: bold;
+    }
+    .card-back {
+      background: white;
+      color: #222;
+      transform: rotateY(180deg);
+      justify-content: center;
+    }
+    .card.flipped .card-front {
+      transform: rotateY(180deg);
+    }
+    .card.flipped .card-back {
+      transform: rotateY(0deg);
+    }
+    button {
+      margin: 6px 0 4px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      background: #1565c0;
+      transform: translateY(-2px);
+    }
+    button:active { transform: translateY(1px); }
+    .controls {
+      display: flex; 
+      gap: 10px; 
+      flex-wrap: wrap; 
+      justify-content: center;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+    .settings {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .note { 
+      font-size: 14px; 
+      color: #555; 
+      margin-top: 4px; 
+      text-align: center;
+      max-width: 600px;
+    }
+    .completed-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px 40px;
+      border-radius: 15px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+      text-align: center;
+      z-index: 100;
+      animation: popIn 0.5s ease;
+    }
+    
+    /* 答案欄樣式 */
+    #answer-board {
+      width: 100%;
+      max-width: 1000px;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    #answer-board h2 {
+      text-align: center;
+      color: #1976d2;
+      margin-top: 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #1976d2;
+    }
+    .answer-pair {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 15px;
+      align-items: center;
+      min-height: 80px;
+    }
+    .answer-pair:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .pair-number {
+      width: 30px;
+      height: 30px;
+      background: #1976d2;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 10px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .pair-number.visible {
+      opacity: 1;
+    }
+    .answer-text, .answer-source {
+      flex: 1;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin: 0 5px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .answer-text {
+      border-left: 4px solid #4caf50;
+    }
+    .answer-source {
+      border-left: 4px solid #2196f3;
+    }
+    .answer-type {
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      font-size: 12px;
+      color: #888;
+    }
+    .answer-placeholder {
+      color: #999;
+      font-style: italic;
+    }
+    
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    @media (max-width: 1000px) {
+      #game-board { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (max-width: 800px) {
+      #game-board { grid-template-columns: repeat(3, 1fr); }
+      .card { height: 100px; font-size: 14px; }
+      .answer-pair { flex-direction: column; }
+      .answer-text, .answer-source { margin: 5px 0; width: 100%; }
+      .pair-number { margin: 0 0 5px 0; }
+    }
+    @media (max-width: 600px) {
+      #game-board { grid-template-columns: repeat(2, 1fr); }
+      .card { height: 90px; }
+      .stat { min-width: auto; font-size: 14px; }
+      h1 { font-size: 1.5rem; }
+    }
+    @media (max-width: 400px) {
+      #game-board { grid-template-columns: repeat(2, 1fr); }
+      .card { height: 80px; font-size: 12px; padding: 5px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="text-align: center; margin: 15px 0; width: 100%;">
+      <img 
+        src="data:image/webp;base64,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" 
+        alt="名句配對消消樂Logo" 
+        style="height: 80px; width: auto; max-width: 90%; object-fit: contain;"
+      >
+    </div>
+<h1>中文組</h1>
+    <h1>101-200名句配對消消樂</h1>
+
+    <div class="topbar">
+      <div class="stat">計時：<span id="timer">00:00.0</span></div>
+      <div class="stat">配對：<span id="pairs">0</span>/<span id="total-pairs">0</span></div>
+      <div class="stat">最佳：<span id="best">—</span></div>
+    </div>
+
+    <div id="status">請翻開兩張卡牌進行配對</div>
+
+    <div class="settings">
+      <div class="setting-item">
+        <label for="pair-count">遊戲難度:</label>
+        <select id="pair-count">
+          <option value="5">簡單 (5組)</option>
+          <option value="8">中等 (8組)</option>
+          <option value="10">困難 (10組)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="btn-new">重新開始</button>
+      <button id="btn-pause">暫停</button>
+      <button id="btn-resume" style="display:none;">繼續</button>
+    </div>
+    <div class="note">提示：翻牌開始即計時，全部配對完成自動停止。配對成功時卡片會移動到下方答案欄。</div>
+
+    <div class="game-container">
+      <div id="game-board"></div>
+    </div>
+    
+    <!-- 答案欄 -->
+    <div id="answer-board">
+      <h2>答案欄</h2>
+      <div id="answer-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // 完整的名句列表（帶有序號）
+    const quotes = [
+
+{ "id": 1, "text": "靡不有初，鮮克有終。", "source": "《詩經‧大雅‧蕩》" },
+{ "id": 2, "text": "投我以桃，報之以李。", "source": "《詩經‧大雅‧抑》" },
+{ "id": 3, "text": "他山之石，可以攻玉。", "source": "《詩經‧小雅‧鶴鳴》" },
+{ "id": 4, "text": "昔我往矣，楊柳依依，今我來思，雨雪霏霏。", "source": "《詩經‧小雅‧采薇》" },
+{ "id": 5, "text": "戰戰兢兢，如臨深淵，如履薄冰。", "source": "《詩經‧小雅‧小旻》" },
+{ "id": 6, "text": "高山仰止，景行行止。", "source": "《詩經‧小雅‧車轄》" },
+{ "id": 7, "text": "嚶其鳴矣，求其友聲。", "source": "《詩經‧小雅‧伐木》" },
+{ "id": 8, "text": "如切如磋，如琢如磨。", "source": "《詩經‧衛風‧淇奧》" },
+{ "id": 9, "text": "投我以木瓜，報之以瓊琚。", "source": "《詩經‧衛風‧木瓜》" },
+{ "id": 10, "text": "關關雎鳩，在河之洲。窈窕淑女，君子好逑。", "source": "《詩經‧周南‧關雎》" },
+{ "id": 11, "text": "風雨如晦，雞鳴不已。", "source": "《詩經‧鄭風‧風雨》" },
+{ "id": 12, "text": "人而無儀，不死何為！", "source": "《詩經‧鄘風‧相鼠》" },
+{ "id": 13, "text": "所謂伊人，在水一方。", "source": "《詩經‧秦風‧蒹葭》" },
+{ "id": 14, "text": "一日不見，如三秋兮。", "source": "《詩經‧王風‧采葛》" },
+{ "id": 15, "text": "路曼曼其修遠兮，吾將上下而求索。", "source": "屈原《離騷》" },
+{ "id": 16, "text": "惟草木之零落兮，恐美人之遲暮。", "source": "屈原《離騷》" },
+{ "id": 17, "text": "長太息以掩涕兮，哀民生之多艱。", "source": "屈原《離騷》" },
+{ "id": 18, "text": "亦余心之所善兮，雖九死其猶未悔。", "source": "屈原《離騷》" },
+{ "id": 19, "text": "與天地兮同壽，與日月兮齊光。", "source": "屈原《九章‧涉江》" },
+{ "id": 20, "text": "吾不能變心而從俗兮，固將愁苦而終窮。", "source": "屈原《九章‧涉江》" },
+{ "id": 21, "text": "鳥飛反故鄉兮，狐死必首丘。", "source": "屈原《九章‧哀郢》" },
+{ "id": 22, "text": "身既死兮神以靈，魂魄毅兮為鬼雄。", "source": "屈原《九歌‧國殤》" },
+{ "id": 23, "text": "舉世皆濁我獨清，眾人皆醉我獨醒。", "source": "屈原《漁父》" },
+{ "id": 24, "text": "尺有所短，寸有所長。", "source": "屈原《卜居》" },
+{ "id": 25, "text": "其曲彌高，其和彌寡。", "source": "宋玉《對楚王問》" },
+{ "id": 26, "text": "滿招損，謙受益。", "source": "《尚書‧大禹謨》" },
+{ "id": 27, "text": "輔車相依，唇亡齒寒。", "source": "《左傳‧僖公五年》" },
+{ "id": 28, "text": "欲加之罪，其無辭乎（何患無辭）。", "source": "《左傳‧僖公十年》" },
+{ "id": 29, "text": "居安思危，思則有備，有備無患。", "source": "《左傳‧襄公十一年》" },
+{ "id": 30, "text": "外舉不棄仇，內舉不失親。", "source": "《左傳‧襄公二十一年》" },
+{ "id": 31, "text": "人心之不同，如其面焉。", "source": "《左傳‧襄公三十一年》" },
+{ "id": 32, "text": "人誰無過？過而能改，善莫大焉。", "source": "《左傳‧宣公二年》" },
+{ "id": 33, "text": "多行不義必自斃。", "source": "《左傳‧隱公元年》" },
+{ "id": 34, "text": "防民之口，甚於防川。", "source": "《國語‧周語上》" },
+{ "id": 35, "text": "前事不忘，後事之師。", "source": "《戰國策‧趙策一》" },
+{ "id": 36, "text": "士為知己者死，女為悅己者容。", "source": "《戰國策‧趙策一》" },
+{ "id": 37, "text": "亡羊而補牢，猶未遲也。", "source": "《戰國策‧楚策一》" },
+{ "id": 38, "text": "日中則移，月滿則虧，物盛則衰。", "source": "《戰國策‧秦策三》" },
+{ "id": 39, "text": "鷸蚌相爭，漁翁得利。", "source": "《戰國策‧燕策二》" },
+{ "id": 40, "text": "知己知彼，百戰不殆。", "source": "孫武《孫子兵法‧謀攻》" },
+{ "id": 41, "text": "功成而弗居。夫唯弗居，是以不去。", "source": "老子《道德經‧二章》" },
+{ "id": 42, "text": "見素抱樸，少私寡欲。", "source": "《老子‧十九章》" },
+{ "id": 43, "text": "曲則全，枉則直。", "source": "老子《道德經‧二十二章》" },
+{ "id": 44, "text": "知人者智，自知者明。", "source": "老子《道德經‧三十三章》" },
+{ "id": 45, "text": "大方無隅，大器晚成，大音希聲，大象無形。", "source": "老子《道德經‧四十一章》" },
+{ "id": 46, "text": "知足不辱，知止不殆。", "source": "老子《道德經‧四十四章》" },
+{ "id": 47, "text": "大直若屈，大巧若拙。", "source": "老子《道德經‧四十五章》" },
+{ "id": 48, "text": "禍兮福之所倚，福兮禍之所伏。", "source": "老子《道德經‧五十八章》" },
+{ "id": 49, "text": "千里之行，始於足下。", "source": "老子《道德經‧六十四章》" },
+{ "id": 50, "text": "天網恢恢，疏而不漏。", "source": "老子《道德經‧七十三章》" },
+{ "id": 51, "text": "民不畏死，奈何以死懼之。", "source": "老子《道德經‧七十四章》" },
+{ "id": 52, "text": "信言不美，美言不信。", "source": "老子《道德經‧八十一章》" },
+{ "id": 53, "text": "天之道，利而不害。", "source": "老子《道德經‧八十一章》" },
+{ "id": 54, "text": "仁者見之謂之仁，智者見之謂之知。", "source": "《周易‧繫辭上》" },
+{ "id": 55, "text": "天行健，君子以自強不息。地勢坤，君子以厚德載物。", "source": "《周易‧象傳》" },
+{ "id": 56, "text": "與朋友交，言而有信。", "source": "《論語‧學而》" },
+{ "id": 57, "text": "敏於事而慎於言，就有道而正焉。", "source": "《論語‧學而》" },
+{ "id": 58, "text": "不患人之不己知，患不知人也。", "source": "《論語‧學而》" },
+{ "id": 59, "text": "學而不思則罔，思而不學則殆。", "source": "《論語‧為政》" },
+{ "id": 60, "text": "溫故而知新，可以為師矣。", "source": "《論語‧為政》" },
+{ "id": 61, "text": "君子周而不比，小人比而不周。", "source": "《論語‧為政》" },
+{ "id": 62, "text": "敏而好學，不耻下問。", "source": "《論語‧公冶長》" },
+{ "id": 63, "text": "知之者不如好之者，好之者不如樂之者。", "source": "《論語‧雍也》" },
+{ "id": 64, "text": "知者樂水，仁者樂山。", "source": "《論語‧雍也》" },
+{ "id": 65, "text": "學而不厭，誨人不倦。", "source": "《論語‧述而》" },
+{ "id": 66, "text": "君子坦蕩蕩，小人長戚戚。", "source": "《論語‧述而》" },
+{ "id": 67, "text": "不憤不啟，不悱不發。", "source": "《論語‧述而》" },
+{ "id": 68, "text": "發憤忘食，樂以忘憂，不知老之將至。", "source": "《論語‧述而》" },
+{ "id": 69, "text": "子在川上曰：「逝者如斯夫！不捨晝夜。」", "source": "《論語‧子罕》" },
+{ "id": 70, "text": "三軍可奪帥也，匹夫不可奪志也。", "source": "《論語‧子罕》" },
+{ "id": 71, "text": "歲寒，然後知松柏之後凋也。", "source": "《論語‧子罕》" },
+{ "id": 72, "text": "後生可畏，焉知來者之不如今也。", "source": "《論語‧子罕》" },
+{ "id": 73, "text": "仰之彌高，鑽之彌堅。", "source": "《論語‧子罕》" },
+{ "id": 74, "text": "己所不欲，勿施於人。", "source": "《論語‧顏淵》" },
+{ "id": 75, "text": "工欲善其事，必先利其器。", "source": "《論語‧衛靈公》" },
+{ "id": 76, "text": "人無遠慮，必有近憂。", "source": "《論語‧衛靈公》" },
+{ "id": 77, "text": "君子不以言舉人，不以人廢言。", "source": "《論語‧衛靈公》" },
+{ "id": 78, "text": "君子求諸己，小人求諸人。", "source": "《論語‧衛靈公》" },
+{ "id": 79, "text": "既來之，則安之。", "source": "《論語‧季氏》" },
+{ "id": 80, "text": "陳力就列，不能者止。", "source": "《論語‧季氏》" },
+{ "id": 81, "text": "不患寡而患不均，不患貧而患不安。", "source": "《論語‧季氏》" },
+{ "id": 82, "text": "朝聞道，夕死可矣。", "source": "《論語‧里仁》" },
+{ "id": 83, "text": "君子喻於義，小人喻於利。", "source": "《論語‧里仁》" },
+{ "id": 84, "text": "見賢思齊焉，見不賢而內自省也。", "source": "《論語‧里仁》" },
+{ "id": 85, "text": "不在其位，不謀其政。", "source": "《論語‧泰伯》" },
+{ "id": 86, "text": "士不可以不弘毅，任重而道遠。", "source": "《論語‧泰伯》" },
+{ "id": 87, "text": "其身正，不令而行；其身不正，雖令不從。", "source": "《論語‧子路》" },
+{ "id": 88, "text": "言必信，行必果。", "source": "《論語‧子路》" },
+{ "id": 89, "text": "往者不可諫，來者猶可追。", "source": "《論語‧微子》" },
+{ "id": 90, "text": "竊鈎者誅，竊國者為諸侯。", "source": "《莊子‧胠篋》" },
+{ "id": 91, "text": "吾生也有涯，而知也無涯。", "source": "《莊子‧養生主》" },
+{ "id": 92, "text": "朝菌不知晦朔，蟪蛄不知春秋。", "source": "《莊子‧逍遙游》" },
+{ "id": 93, "text": "君子之交淡若水，小人之交甘若醴。", "source": "《莊子‧山木》" },
+{ "id": 94, "text": "橘生淮南則為橘，生於淮北則為枳。", "source": "《晏子春秋‧雜下》" },
+{ "id": 95, "text": "十年樹木，百年樹人。", "source": "《管子‧權修》" },
+{ "id": 96, "text": "窮則獨善其身，達則兼善（濟）天下。", "source": "《孟子‧盡心上》" },
+{ "id": 97, "text": "民為貴，社稷次之，君為輕。", "source": "《孟子‧盡心下》" },
+{ "id": 98, "text": "盡信書，則不如無書。", "source": "《孟子‧盡心下》" },
+{ "id": 99, "text": "老吾老，以及人之老；幼吾幼，以及人之幼。", "source": "《孟子‧梁惠王上》" },
+{ "id": 100, "text": "天時不如地利，地利不如人和。", "source": "《孟子‧公孫丑下》" },
+{"id": 101, "text": "得道者多助，失道者寡助。", "source": "《孟子・公孫丑下》"},
+{ "id": 102, "text": "當今之世，捨我其誰也。", "source": "《孟子・公孫丑下》" },
+{ "id": 103, "text": "生於憂患，而死於安樂也。", "source": "《孟子・告子下》" },
+{ "id": 104, "text": "富貴不能淫，貧賤不能移，威武不能屈。", "source": "《孟子・滕文公下》" },
+{ "id": 105, "text": "人有不為也，而後可以有為。", "source": "《孟子・離婁下》" },
+{ "id": 106, "text": "君子曰：「學不可以已。」青，取之於藍，而青於藍；冰，水為之，而寒於水。", "source": "《荀子・勸學》" },
+{ "id": 107, "text": "故木受繩則直，金就礪則利，君子博學而日參省乎己，則知明而行無過矣。", "source": "《荀子・勸學》" },
+{ "id": 108, "text": "故不積跬步，無以至千里；不積小流，無以成江海。", "source": "《荀子・勸學》" },
+{ "id": 109, "text": "鍥而捨之，朽木不折；鍥而不捨，金石可鏤。", "source": "《荀子・勸學》" },
+{ "id": 110, "text": "蓬生麻中，不扶而直；白沙在涅，與之俱黑。", "source": "《荀子・勸學》" },
+{ "id": 111, "text": "天行有常，不為堯存，不為桀亡。", "source": "《荀子・天論》" },
+{ "id": 112, "text": "道雖邇，不行不至；事雖小，不為不成。", "source": "《荀子・修身》" },
+{ "id": 113, "text": "千里之堤，潰於蟻穴。", "source": "《韓非子・喻老》" },
+{ "id": 114, "text": "以子之矛，攻子之盾。", "source": "《韓非子・難一》" },
+{ "id": 115, "text": "事以密成，語以泄敗。", "source": "《韓非子・說難》" },
+{ "id": 116, "text": "流水不腐，戶樞不蠹。", "source": "《呂氏春秋・盡數》" },
+{ "id": 117, "text": "以湯止沸，沸愈不止，去其火則止矣。", "source": "《呂氏春秋・盡數》" },
+{ "id": 118, "text": "察己則可以知人，察今則可以知古。", "source": "《呂氏春秋・察今》" },
+{ "id": 119, "text": "獨學而無友，則孤陋而寡聞。", "source": "戴聖《禮記・學記》" },
+{ "id": 120, "text": "玉不琢，不成器；人不學，不知道。", "source": "戴聖《禮記・學記》" },
+{ "id": 121, "text": "凡事預則立，不預則廢。", "source": "戴聖《禮記・中庸》" },
+{ "id": 122, "text": "來而不往，非禮也；來而不往，亦非禮也。", "source": "戴聖《禮記・曲禮上》" },
+{ "id": 123, "text": "一張一弛，文武之道也。", "source": "戴聖《禮記・雜記下》" },
+{ "id": 124, "text": "君子之愛人也以德，細人之愛人也以姑息。", "source": "戴聖《禮記・檀弓上》" },
+{ "id": 125, "text": "泰山不讓土壤，故能成其大；河海不擇細流，故能就其深。", "source": "李斯《諫逐客書》" },
+{ "id": 126, "text": "臨淵羡魚，不如退而結網（臨河而羨魚，不如歸家織網）。", "source": "《淮南子・說林訓》" },
+{ "id": 127, "text": "塞翁失馬，焉知非福。", "source": "《淮南子・人間訓》" },
+{ "id": 128, "text": "失之毫厘，謬（差）以千里。", "source": "司馬遷《史記・太史公自序》" },
+{ "id": 129, "text": "桃李不言，下自成蹊。", "source": "司馬遷《史記・李將軍列傳》" },
+{ "id": 130, "text": "智者千慮，必有一失；愚者千慮，必有一得。", "source": "司馬遷《史記・淮陰侯列傳》" },
+{ "id": 131, "text": "韓信將兵，多多益善。", "source": "司馬遷《史記・淮陰侯列傳》" },
+{ "id": 132, "text": "運籌帷幄之中，決勝千里之外。", "source": "司馬遷《史記・留侯世家》" },
+{ "id": 133, "text": "忠言逆耳利於行，良藥苦口利於病。", "source": "司馬遷《史記・留侯世家》" },
+{ "id": 134, "text": "今者項莊拔劍舞，其意常在沛公也。", "source": "司馬遷《史記・項羽本紀》" },
+{ "id": 135, "text": "大行不顧細謹，大禮不辭小讓。如今人方為刀俎，我為魚肉，何辭為？", "source": "司馬遷《史記・項羽本紀》" },
+{ "id": 136, "text": "不鳴則已，一鳴驚人。", "source": "司馬遷《史記・滑稽列傳》" },
+{ "id": 137, "text": "顧小而忘大，後必有害；狐疑猶豫，後必有悔。", "source": "司馬遷《史記・李斯列傳》" },
+{ "id": 138, "text": "眾口鑠金，積毀銷骨。", "source": "司馬遷《史記・張儀列傳》" },
+{ "id": 139, "text": "倉廪實而知禮節，衣食足而知榮辱。", "source": "司馬遷《史記・貨殖列傳》/ 司馬遷《史記・管晏列傳》" },
+{ "id": 140, "text": "天下熙熙，皆為利來；天下攘攘，皆為利往。", "source": "司馬遷《史記・貨殖列傳》" },
+{ "id": 141, "text": "亦欲以究天人之際，通古今之變，成一家之言。", "source": "司馬遷《報任安書》" },
+{ "id": 142, "text": "人固有一死，或重於泰山，或輕於鴻毛。", "source": "司馬遷《報任安书》" },
+{ "id": 143, "text": "盈盈一水間，脈脈不得語。", "source": "《古詩十九首・迢迢牽牛星》" },
+{ "id": 144, "text": "舉手長勞勞，二情同依依。", "source": "《樂府詩集・孔雀東南飛》" },
+{ "id": 145, "text": "少壯不努力，老大徒傷悲！", "source": "漢樂府《長歌行》" },
+{ "id": 146, "text": "繩鋸木斷，水滴石穿。", "source": "羅大經《鶴林玉露・一錢斬吏》" },
+{ "id": 147, "text": "水至清則無魚，人至察則無徒。", "source": "班固《漢書・東方朔傳》" },
+{ "id": 148, "text": "失之東隅，收之桑榆。", "source": "范曄《後漢書・馮岑賈列傳》" },
+{ "id": 149, "text": "精誠所至（加），金石為開。", "source": "范曄《後漢書・廣陵思王荊傳》" },
+{ "id": 150, "text": "不入虎穴，焉得虎子。", "source": "范曄《後漢書・班超傳》" },
+{ "id": 151, "text": "貧賤之知不可忘，糟糠之妻不下堂。", "source": "范曄《後漢書・宋弘傳》" },
+{ "id": 152, "text": "君子不患位之不尊，而患德之不崇。", "source": "范曄《後漢書・張衡傳》" },
+{ "id": 153, "text": "老驥伏櫪，志在千里；烈士暮年，壯心不已。", "source": "曹操《龜雖壽》" },
+{ "id": 154, "text": "山不厭高，海不厭深。周公吐哺，天下歸心。", "source": "曹操《短歌行》" },
+{ "id": 155, "text": "白骨露於野，千里無雞鳴。", "source": "曹操《蒿里行》" },
+{ "id": 156, "text": "捐軀赴國難，視死忽如歸。", "source": "曹操《白馬篇》" },
+{ "id": 157, "text": "歲月不居，時節如流。", "source": "孔融《論盛孝章書》" },
+{ "id": 158, "text": "何意百煉鋼，化為繞指柔。", "source": "劉琨《重贈盧諶》" },
+{ "id": 159, "text": "受任於敗軍之際，奉命於危難之間。", "source": "諸葛亮《出師表》" },
+{ "id": 160, "text": "鞠躬盡瘁，死而後已。", "source": "諸葛亮《後出師表》" },
+{ "id": 161, "text": "非淡泊無以明志，非寧靜無以致遠。", "source": "諸葛亮《誡子書》" },
+{ "id": 162, "text": "非學無以廣才，非志無以成學。", "source": "諸葛亮《誡子書》" },
+{ "id": 163, "text": "勿以惡小而為之，勿以善小而不為。", "source": "陳壽《三國志・蜀志》裴之松註" },
+{ "id": 164, "text": "採菊東籬下，悠然見南山。", "source": "陶淵明《飲酒》" },
+{ "id": 165, "text": "羈鳥戀舊林，池魚思故淵。", "source": "陶淵明《歸園田居》" },
+{ "id": 166, "text": "雲無心以出岫，鳥倦飛而知還。", "source": "陶淵明《歸去來兮辭》" },
+{ "id": 167, "text": "木欣欣以向榮，泉涓涓而始流。", "source": "陶淵明《歸去來兮辭》" },
+{ "id": 168, "text": "盛年不重來，一日難再晨。", "source": "陶淵明《雜詩》" },
+{ "id": 169, "text": "及時當勉勵，歲月不待人。", "source": "陶淵明《雜詩》" },
+{ "id": 170, "text": "刑天舞干戚，猛志固常在。", "source": "陶淵明《讀山海經》" },
+{ "id": 171, "text": "不戚戚於貧賤，不汲汲於富貴。", "source": "陶淵明《五柳先生傳》" },
+{ "id": 172, "text": "池塘生春草，園柳變鳴禽。", "source": "謝靈運《登池上樓》" },
+{ "id": 173, "text": "寧為玉碎，不為瓦全。", "source": "李百藥《北齊書・元景安傳》" },
+{ "id": 174, "text": "欲人勿知，莫若勿為。", "source": "枚乘《上書諫吳王》" },
+{ "id": 175, "text": "近朱者赤，近墨者黑。", "source": "傅玄《太子少傅箴》" },
+{ "id": 176, "text": "登山則情滿於山，觀海則意溢於海。", "source": "劉勰《文心雕龍・神思》" },
+{ "id": 177, "text": "操千曲而後曉聲，觀千劍而後識器。", "source": "劉勰《文心雕龍・知音》" },
+{ "id": 178, "text": "餘霞散成綺，澄江靜如練。", "source": "謝眺《晚登三山還望京邑》" },
+{ "id": 179, "text": "蟬噪林愈靜，鳥鳴山更幽。", "source": "王籍《入若耶溪》" },
+{ "id": 180, "text": "疾風知勁草，板蕩識誠臣。", "source": "唐太宗《贈蕭瑀》" },
+{ "id": 181, "text": "海內存知己，天涯若比鄰。", "source": "王勃《送杜少府之任蜀州》" },
+{ "id": 182, "text": "落霞與孤鶩齊飛，秋水共長天一色。", "source": "王勃《滕王閣序》" },
+{ "id": 183, "text": "馮唐易老，李廣難封。", "source": "王勃《滕王閣序》" },
+{ "id": 184, "text": "念天地之悠悠，獨愴然而涕下。", "source": "陳子昂《登幽州台歌》" },
+{ "id": 185, "text": "春江潮水連海平，海上明月共潮生。", "source": "張若虛《春江花月夜》" },
+{ "id": 186, "text": "江畔何人初見月？江月何年初照人？", "source": "張若虛《春江花月夜》" },
+{ "id": 187, "text": "年年歲歲花相似，歲歲年年人不同。", "source": "劉希夷《代悲白頭翁》" },
+{ "id": 188, "text": "海上生明月，天涯共此時。", "source": "張九齡《望月懷遠》" },
+{"id": 189, "text": "思君如滿月，夜夜減清輝。", "source": "張九齡《賦得自君之出矣》"},
+{ "id": 190, "text": "野曠天低樹，江清月近人。", "source": "孟浩然《宿建德江》" },
+{ "id": 191, "text": "氣蒸雲夢澤，波撼岳陽城。", "source": "孟浩然《望洞庭湖贈張丞相》" },
+{ "id": 192, "text": "草木本無意，榮枯自有時。", "source": "孟浩然《江上寄山陰崔少府國輔》" },
+{ "id": 193, "text": "大漠孤煙直，長河落日圓。", "source": "王維《使至塞上》" },
+{ "id": 194, "text": "獨在異鄉為異客，每逢佳節倍思親。", "source": "王維《九月九日憶山東兄弟》" },
+{ "id": 195, "text": "勸君更盡一杯酒，西出陽關無故人。", "source": "王維《送元二使安西》" },
+{ "id": 196, "text": "月出驚山鳥，時鳴春澗中。", "source": "王維《鳥鳴澗》" },
+{ "id": 197, "text": "行到水窮處，坐看雲起時。", "source": "王維《終南別業》" },
+{ "id": 198, "text": "秦時明月漢時關，萬里長征人未還。", "source": "王昌齡《出塞》" },
+{ "id": 199, "text": "但使龍城飛將在，不教胡馬度陰山！", "source": "王昌齡《出塞》" },
+{ "id": 200, "text": "洛陽親友如相問，一片冰心在玉壺。", "source": "王昌齡《芙蓉樓送辛漸》" },
+{"id": 201, "text": "黃沙百戰穿金甲，不破樓蘭終不還。", "source": "王昌齡《從軍行》"},
+{ "id": 202, "text": "欲窮千里目，更上一層樓。", "source": "王之煥《登鸛雀樓》" },
+{ "id": 203, "text": "莫愁前路無知己，天下誰人不識君。", "source": "高適《別董大》" },
+{ "id": 204, "text": "忽如一夜春風來，千樹萬樹梨花開。", "source": "岑參《白雪歌送武判官歸京》" },
+{ "id": 205, "text": "近鄉情更怯，不敢問來人。", "source": "宋之問《渡漢江》" },
+{ "id": 206, "text": "少小離家老大回，鄉音無改鬢毛衰。", "source": "賀知章《回鄉偶書》" },
+{ "id": 207, "text": "兒童相見不相識，笑問客從何處來。", "source": "賀知章《回鄉偶書》" },
+{ "id": 208, "text": "不知細葉誰裁出，二月春風似剪刀。", "source": "賀知章《咏柳》" },
+{ "id": 209, "text": "晴川歷歷漢陽樹，芳草萋萋鸚鵡洲。", "source": "崔顥《黃鶴樓》" },
+{ "id": 210, "text": "報國行赴難，古來皆共然。", "source": "崔顥《贈王威古》" },
+{ "id": 211, "text": "桃花潭水深千尺，不及汪倫送我情。", "source": "李白《贈汪倫》" },
+{ "id": 212, "text": "安能摧眉折腰事權貴，使我不得開心顏！", "source": "李白《夢游天姥吟留別》" },
+{ "id": 213, "text": "不知明鏡裡，何處得秋霜。", "source": "李白《秋浦歌》" },
+{ "id": 214, "text": "但使主人能醉客，不知何處是他鄉。", "source": "李白《客中作》" },
+{ "id": 215, "text": "浮雲游子意，落日故人情。", "source": "李白《送友人》" },
+{ "id": 216, "text": "君不見黃河之水天上來，奔流到海不復回。", "source": "李白《將進酒》" },
+{ "id": 217, "text": "天生我材必有用，千金散盡還復來。", "source": "李白《將進酒》" },
+{ "id": 218, "text": "俱懷逸興壯思飛，欲上青天攬（覽）明月。", "source": "李白《宣州謝朓樓餞別校書叔雲》" },
+{ "id": 219, "text": "抽刀斷水水更流，舉杯消愁愁更愁。", "source": "李白《宣州謝朓樓餞別校書叔雲》" },
+{ "id": 220, "text": "燕山雪花大如席，片片吹落軒轅台。", "source": "李白《北風行》" },
+{ "id": 221, "text": "大鵬一日同風起，扶搖直上九萬里。", "source": "李白《上李邕》" },
+{ "id": 222, "text": "舉杯邀明月，對影成三人。", "source": "李白《月下獨酌》" },
+{ "id": 223, "text": "仰天大笑出門去，我輩豈是蓬蒿人。", "source": "李白《南陵別兒童入京》" },
+{ "id": 224, "text": "清水出芙蓉，天然去雕飾。", "source": "李白《經亂離後天恩流夜郎憶舊遊書懷贈江夏韋太守良宰》" },
+{ "id": 225, "text": "孤帆遠影碧空盡，惟見長江天際流。", "source": "李白《送孟浩然之廣陵》" },
+{ "id": 226, "text": "長風破浪會有時，直掛雲帆濟滄海。", "source": "李白《行路難》" },
+{ "id": 227, "text": "劍閣崢嶸而崔嵬，一夫當關，萬夫莫開。", "source": "李白《蜀道難》" },
+{ "id": 228, "text": "射人先射馬，擒賊先擒王。", "source": "杜甫《前出塞》" },
+{ "id": 229, "text": "爾曹身與名俱滅，不廢江河萬古流。", "source": "杜甫《戲為六絕句》" },
+{ "id": 230, "text": "會當凌絕頂，一覽眾山小。", "source": "杜甫《望岳》" },
+{ "id": 231, "text": "好雨知時節，當春乃發生。", "source": "杜甫《春夜喜雨》" },
+{ "id": 232, "text": "細雨魚兒出，微風燕子斜。", "source": "杜甫《水檻遣心》" },
+{ "id": 233, "text": "映階碧草自春色，隔葉黃鸝空好音。", "source": "杜甫《蜀相》" },
+{ "id": 234, "text": "出師未捷身先死，長使英雄淚滿襟。", "source": "杜甫《蜀相》" },
+{ "id": 235, "text": "吳楚東南坼，乾坤日夜浮。", "source": "杜甫《登岳陽樓》" },
+{ "id": 236, "text": "筆落驚風雨，詩成泣鬼神。", "source": "杜甫《寄李十二白二十韻》" },
+{ "id": 237, "text": "敏捷詩千首，飄零酒一杯。", "source": "杜甫《不見》" },
+{ "id": 238, "text": "無邊落木蕭蕭下，不盡長江滾滾來。", "source": "杜甫《登高》" },
+{ "id": 239, "text": "萬里悲秋常作客，百年多病獨登台。", "source": "杜甫《登高》" },
+{ "id": 240, "text": "白日放歌須縱酒，青春作伴好還鄉。", "source": "杜甫《聞官軍收河南河北》" },
+{ "id": 241, "text": "安得廣廈千萬間，大庇天下寒士俱歡顏，風雨不動安如山！", "source": "杜甫《茅屋為秋風所破歌》" },
+{ "id": 242, "text": "露從今夜白，月是故鄉明。", "source": "杜甫《月夜憶舍弟》" },
+{ "id": 243, "text": "朱門酒肉臭，路有凍死骨。", "source": "杜甫《自京赴奉先縣咏懷五百字》" },
+{ "id": 244, "text": "烽火連三月，家書抵萬金。", "source": "杜甫《春望》" },
+{ "id": 245, "text": "讀書破萬卷，下筆如有神。", "source": "杜甫《奉贈韋左丞丈二十二韻》" },
+{ "id": 246, "text": "窗含西嶺千秋雪，門泊東吳萬里船。", "source": "杜甫《絕句》" },
+{ "id": 247, "text": "為人性僻耽佳句，語不驚人死不休。", "source": "杜甫《江上值水如海勢聊短述》" },
+{ "id": 248, "text": "正是江南好風景，落花時節又逢君。", "source": "杜甫《江南逢李龜年》" },
+{ "id": 249, "text": "春潮帶雨晚來急，野渡無人舟自橫。", "source": "韋應物《滁州西澗》" },
+{ "id": 250, "text": "誰言寸草心，報得三春暉。", "source": "孟郊《遊子吟》" },
+{ "id": 251, "text": "春風得意馬蹄疾，一日看盡長安花。", "source": "孟郊《登科後》" },
+{ "id": 252, "text": "人面不知何處去，桃花依舊笑春風。", "source": "崔護《題都城南庄》" },
+{ "id": 253, "text": "不塞不流，不止不行。", "source": "韓愈《原道》" },
+{ "id": 254, "text": "古之學者必有師。師者，所以傳道受業解惑也。", "source": "韓愈《師說》" },
+{ "id": 255, "text": "道之所存，師之所存也。", "source": "韓愈《師說》" },
+{ "id": 256, "text": "孔子曰：「三人行，則必有我師。」是故弟子不必不如師，師不必賢於弟子。", "source": "韓愈《師說》" },
+{ "id": 257, "text": "天街小雨潤如酥，草色遙看近卻無。", "source": "韓愈《早春呈水部張十八員外》" },
+{ "id": 258, "text": "大凡物不得其平則嗚。", "source": "韓愈《送孟東野序》" },
+{ "id": 259, "text": "蚍蜉撼大樹，可笑不自量。", "source": "韓愈《調張籍》" },
+{ "id": 260, "text": "業精於勤荒於嬉，行成於思毀於隨。", "source": "韓愈《進學解》" },
+{ "id": 261, "text": "昆山玉碎鳳凰叫，芙蓉泣露香蘭笑。", "source": "韓愈《李憑箜篌引》" },
+{ "id": 262, "text": "女媧煉石補天處，石破天驚逗秋雨。", "source": "韓愈《李憑箜篌引》" },
+{ "id": 263, "text": "黑雲壓城城欲摧，甲光向日金鱗開。", "source": "李賀《雁門太守行》" },
+{ "id": 264, "text": "大漠沙如雪，燕山月似鈎。", "source": "李賀《馬詩》" },
+{ "id": 265, "text": "我有迷魂招不得，雄雞一叫天下白。", "source": "李賀《致酒行》" },
+{ "id": 266, "text": "衰蘭送客咸陽道，天若有情天亦老。", "source": "李賀《金銅仙人辭漢歌》" },
+{ "id": 267, "text": "千山鳥飛絕，萬徑人踪滅。", "source": "柳宗元《江雪》" },
+{ "id": 268, "text": "山圍故國周遭在，潮打空城寂寞回。", "source": "劉禹錫《石頭城》" },
+{ "id": 269, "text": "舊時王謝堂前燕，飛入尋常百姓家。", "source": "劉禹錫《烏衣巷》" },
+{ "id": 270, "text": "莫道桑榆晚，為霞尚滿天。", "source": "劉禹錫《酬樂天咏老見示》" },
+{ "id": 271, "text": "晴空一鶴排雲上，便引詩情到碧霄。", "source": "劉禹錫《秋詞》" },
+{ "id": 272, "text": "沉舟側畔千帆過，病樹前頭萬木春。", "source": "劉禹錫《酬樂天揚州初逢席上見贈》" },
+{ "id": 273, "text": "東邊日出西邊雨，道是無晴卻有晴。", "source": "劉禹錫《竹枝詞》" },
+{ "id": 274, "text": "山不在高，有仙則名；水不在深，有龍則靈。", "source": "劉禹錫《陋室銘》" },
+{ "id": 275, "text": "亂花漸欲迷人眼，淺草才能沒馬蹄。", "source": "白居易《錢塘湖春行》" },
+{ "id": 276, "text": "一道殘陽鋪水中，半江瑟瑟半江紅。", "source": "白居易《暮江吟》" },
+{ "id": 277, "text": "試玉要燒三日滿，辨材須待七年期。", "source": "白居易《放言》" },
+{ "id": 278, "text": "野火燒不盡，春風吹又生。", "source": "白居易《賦得古原草送別》" },
+{ "id": 279, "text": "文章合為時而著，歌詩合為事而作。", "source": "白居易《與元九書》" },
+{ "id": 280, "text": "別有幽愁暗恨生，此時無聲勝有聲。", "source": "白居易《琵琶行》" },
+{ "id": 281, "text": "同是天涯淪落人，相逢何必曾相識。", "source": "白居易《琵琶行》" },
+{ "id": 282, "text": "在天願作比翼鳥，在地願為連理枝。", "source": "白居易《長恨歌》" },
+{ "id": 283, "text": "江南好，風景舊曾諳。日出江花紅勝火，春來江水綠如藍。能不憶江南？", "source": "白居易《憶江南》" },
+{ "id": 284, "text": "醉臥沙場君莫笑，古來征戰幾人回？", "source": "王翰《涼州詞》" },
+{ "id": 285, "text": "千里鶯啼綠映紅，水村山郭酒旗風。", "source": "杜牧《江南春絕句》" },
+{ "id": 286, "text": "清明時節雨紛紛，路上行人欲斷魂。", "source": "杜牧《清明》" },
+{ "id": 287, "text": "微雨池塘見，好風襟袖知。", "source": "杜牧《秋思》" },
+{ "id": 288, "text": "門外若無南北路，人間應免別離愁。", "source": "杜牧《贈別》" },
+{ "id": 289, "text": "停車坐愛楓林晚，霜葉紅於二月花。", "source": "杜牧《山行》" },
+{ "id": 290, "text": "商女不知亡國恨，隔江猶唱《後庭花》。", "source": "杜牧《泊秦淮》" },
+{ "id": 291, "text": "二十四橋明月夜，玉人何處教吹簫。", "source": "杜牧《寄揚州韓綽判官》" },
+{ "id": 292, "text": "歷覽前賢國與家，成由勤儉敗（破）由奢。", "source": "李商隠《詠史》" },
+{ "id": 293, "text": "春蠶到死絲方盡，蠟炬成灰淚始乾。", "source": "李商隠《無題》" },
+{ "id": 294, "text": "身無彩鳳雙飛翼，心有靈犀一點通。", "source": "李商隠《無題》" },
+{ "id": 295, "text": "莊生曉夢迷蝴蝶，望帝春心托杜鵑。", "source": "李商隠《錦瑟》" },
+{ "id": 296, "text": "滄海月明珠有淚，藍田日暖玉生煙。", "source": "李商隠《錦瑟》" },
+{ "id": 297, "text": "桐花萬里丹山路，雛鳳清於老鳳聲。", "source": "李商隠《韓冬郎即席爲詩相送，一座盡驚。他日余方追吟「連宵侍坐裴回久」之句，有老成之風，因成二絕寄酬，兼呈畏之員外》" },
+{ "id": 298, "text": "夕陽無限好，只是近黃昏。", "source": "李商隠《樂遊原》" },
+{ "id": 299, "text": "天意憐幽草，人間重晚情。", "source": "李商隠《晚情》" },
+{ "id": 300, "text": "曾經滄海難為水，除卻巫山不是雲。", "source": "元稹《離思》" },
+{"id": 301, "text": "不是花中偏愛菊，此花開盡更無花。", "source": "元稹《菊花》"},
+{ "id": 302, "text": "春種一粒粟，秋收萬顆子。", "source": "李紳《憫農》" },
+{ "id": 303, "text": "姑蘇城外寒山寺，夜半鐘聲到客船。", "source": "張繼《楓橋夜泊》" },
+{ "id": 304, "text": "柴門聞犬吠，風雪夜歸人。", "source": "劉長卿《逢雪宿芙蓉山主人》" },
+{ "id": 305, "text": "勸君莫惜金縷衣，勸君惜取少年時。花開堪折直須折，莫待無花空折枝。", "source": "杜秋娘《金縷衣》" },
+{ "id": 306, "text": "溪雲初起日沉閣，山雨欲來風滿樓。", "source": "許渾《咸陽城東樓》" },
+{ "id": 307, "text": "西塞山前白鷺飛，桃花流水鱖魚肥。", "source": "張志和《漁歌子》" },
+{ "id": 308, "text": "別時容易見時難。流水落花春去也，天上人間。", "source": "李煜《浪淘沙》" },
+{ "id": 309, "text": "先天下之憂而憂，後天下之樂而樂。", "source": "范仲淹《岳陽樓記》" },
+{ "id": 310, "text": "醉翁之意不在酒，在乎山水之間也。", "source": "歐陽修《醉翁亭記》" },
+{ "id": 311, "text": "憂勞可以興國，逸豫可以亡身。", "source": "歐陽修《五代史伶官傳序》" },
+{ "id": 312, "text": "衣帶漸寬終不悔，為伊消得人憔悴。", "source": "柳永《風栖梧》" },
+{ "id": 313, "text": "多情自古傷離別。更那堪，冷落清秋節。", "source": "柳永《雨霖鈴》" },
+{ "id": 314, "text": "今宵酒醒何處，楊柳岸、曉風殘月。", "source": "柳永《雨霖鈴》" },
+{ "id": 315, "text": "鑒前世之興衰，考當今之得失。", "source": "司馬光《資治通鑒》" },
+{ "id": 316, "text": "兼聽則明，偏信（聽）則暗。", "source": "司馬光《資治通鑒》" },
+{ "id": 317, "text": "由儉入奢易，由奢入儉難。", "source": "司馬光《訓儉示康》" },
+{ "id": 318, "text": "春風又綠江南岸，明月何時照我還？", "source": "王安石《泊船瓜州》" },
+{ "id": 319, "text": "不畏浮雲遮望眼，只緣身在最高層。", "source": "王安石《登飛來峰》" },
+{ "id": 320, "text": "千門萬戶曈曈日，總把新桃換舊符。", "source": "王安石《元日》" },
+{ "id": 321, "text": "荷盡已無擎雨蓋，菊殘猶有傲霜枝。", "source": "蘇軾《贈劉景文》" },
+{ "id": 322, "text": "大勇若怯，大智若愚。", "source": "蘇軾《賀歐陽少師致仕啟》" },
+{ "id": 323, "text": "大江東去，浪淘盡、千古風流人物。", "source": "蘇軾《念奴嬌・赤壁懷古》" },
+{ "id": 324, "text": "江山如畫，一時多少豪傑。", "source": "蘇軾《念奴嬌・赤壁懷古》" },
+{ "id": 325, "text": "枝上柳綿吹又少，天涯何處無芳草。", "source": "蘇軾《蝶戀花・春景》" },
+{ "id": 326, "text": "欲把西湖比西子，淡妝濃抹兩相宜。", "source": "蘇軾《飲湖上初晴後雨》" },
+{ "id": 327, "text": "人有悲歡離合，月有陰晴圓缺。", "source": "蘇軾《水調歌頭》" },
+{ "id": 328, "text": "但願人長久，千里共嬋娟。", "source": "蘇軾《水調歌頭》" },
+{ "id": 329, "text": "不識廬山真面目，只緣身在此山中。", "source": "蘇軾《題西林壁》" },
+{ "id": 330, "text": "竹外桃花三兩枝，春江水暖鴨先知。", "source": "蘇軾《惠崇春江晚景》" },
+{ "id": 331, "text": "月出於東山之上，徘徊於斗牛之間。", "source": "蘇軾《前赤壁賦》" },
+{ "id": 332, "text": "園囿之興廢，洛陽盛衰之候也。", "source": "李格飛《書〈洛陽名園記〉後》" },
+{ "id": 333, "text": "一春魚雁無消息，千里關山勞夢魂。", "source": "秦觀《鷓鴣天・春閨》" },
+{ "id": 334, "text": "兩情若是久長時，又豈在朝朝暮暮。", "source": "秦觀《鵲橋仙》" },
+{ "id": 335, "text": "出淤泥而不染，濯清漣而不妖。", "source": "周敦頤《愛蓮說》" },
+{ "id": 336, "text": "莫道不銷魂，簾捲西風，人比黃花瘦。", "source": "李清照《醉花陰》" },
+{ "id": 337, "text": "只恐雙溪舴艋舟，載不動許多愁。", "source": "李清照《武陵春》" },
+{ "id": 338, "text": "花自飄零水自流，一種相思，兩處閑愁。此情無計可清除，才下眉頭，卻上心頭。", "source": "李清照《一剪梅》" },
+{ "id": 339, "text": "尋尋覓覓，冷冷清清，淒淒慘慘戚戚。", "source": "李清照《聲聲慢》" },
+{ "id": 340, "text": "生當作人傑，死亦為鬼雄。", "source": "李清照《夏日絕句》" },
+{ "id": 341, "text": "無意苦爭春，一任群芳妒。", "source": "陸遊《卜算子・詠梅》" },
+{ "id": 342, "text": "僵卧孤村不自哀，尚思為國戍輪台。夜闌臥聽風吹雨，鐵馬冰河入夢來。", "source": "陸遊《十一月四日風雨大作》" },
+{ "id": 343, "text": "紙上得來終覺淺，絶知此事要躬行。", "source": "陸遊《冬夜讀書示子聿》" },
+{ "id": 344, "text": "文章本天成，妙手偶得之。", "source": "陸遊《文章》" },
+{ "id": 345, "text": "山重水複疑無路，柳暗花明又一村。", "source": "陸遊《遊山西村》" },
+{ "id": 346, "text": "出師一表真名世，千載誰堪伯仲間！", "source": "陸遊《書憤》" },
+{ "id": 347, "text": "疏影橫斜水清淺，暗香浮動月黃昏。", "source": "林逋《山園小梅》" },
+{ "id": 348, "text": "小荷才露尖尖角，早有蜻蜓立上頭。", "source": "楊萬里《小池》" },
+{ "id": 349, "text": "畢竟西湖六月中，風光不與四時同。", "source": "楊萬里《曉出凈慈寺送林子方》" },
+{ "id": 350, "text": "接天蓮葉無窮碧，映日荷花別樣紅。", "source": "楊萬里《曉出凈慈寺送林子方》" },
+{ "id": 351, "text": "月子彎彎照九州，幾家歡樂幾家愁。", "source": "楊萬里《竹枝歌》" },
+{ "id": 352, "text": "春花秋月冬冰雪，不聽陳言只聽天。", "source": "楊萬里《讀張文潛詩》" },
+{ "id": 353, "text": "稻花香里說豐年，聽取蛙聲一片。", "source": "辛棄疾《西江月・夜行黃沙道中》" },
+{ "id": 354, "text": "楚天千里清秋，水隨天去秋無際。", "source": "辛棄疾《水龍吟・登建康賞心亭》" },
+{ "id": 355, "text": "眾里尋他千百度。驀然回首，那人卻在、燈火闌珊處。", "source": "辛棄疾《青玉案・元夕》" },
+{ "id": 356, "text": "青山遮不住，畢竟東流去。", "source": "辛棄疾《菩薩蠻・書江西造口壁》" },
+{ "id": 357, "text": "二十四橋仍在，波心蕩、冷月無聲。", "source": "姜夔《揚州慢》" },
+{ "id": 358, "text": "一語天然萬古新，豪華落盡見真淳。", "source": "元好問《論詩三十首》" },
+{ "id": 359, "text": "林間新綠一重重，小蕾深藏數點紅。", "source": "元好問《同兒輩賦未開海棠》" },
+{ "id": 360, "text": "臣心一片磁針石，不指南方不肯休。", "source": "文天祥《揚子江》" },
+{ "id": 361, "text": "山河破碎風飄絮，身世浮沉雨打萍。", "source": "文天祥《過零丁洋》" },
+{ "id": 362, "text": "人生自古誰無死，留取丹心照汗青。", "source": "文天祥《過零丁洋》" },
+{ "id": 363, "text": "無可奈何花落去，似曾相識燕歸來。", "source": "晏殊《浣溪沙》" },
+{ "id": 364, "text": "春色滿園關不住，一枝紅杏出牆來。", "source": "葉紹翁《游園不值》" },
+{ "id": 365, "text": "即以其人之道，還治其人之身。", "source": "朱熹《中庸集註・十三章》" },
+{ "id": 366, "text": "等閒識得東風面，萬紫千紅總是春。", "source": "朱熹《春日》" },
+{ "id": 367, "text": "問渠那得清如許？為有源頭活水來。", "source": "朱熹《觀書有感》" },
+{ "id": 368, "text": "讀書千遍，其義自見。", "source": "朱熹《熟讀精思》" },
+{ "id": 369, "text": "三十功名塵與土，八千里路雲和月。", "source": "岳飛《滿江紅》" },
+{ "id": 370, "text": "不要人誇顏色好，只留清氣滿乾坤。", "source": "王冕《墨梅》" },
+{ "id": 371, "text": "著意栽花花不發，無意插柳柳成蔭。", "source": "關漢卿《包待制智斬魯齋郎》" },
+{ "id": 372, "text": "成也蕭何，敗也蕭何，醉了由他。", "source": "馬致遠《雙調・蟾宮曲・嘆世》" },
+{ "id": 373, "text": "碧雲天，黃花地，西風緊，北雁南飛。曉來誰染霜林醉？總是離人淚。", "source": "王實甫《西厢記》" },
+{ "id": 374, "text": "一言既出，駟馬難追。", "source": "李壽卿《伍員吹簫》" },
+{ "id": 375, "text": "不是一番寒徹骨，怎得梅花撲鼻香。", "source": "高明《琵琶記》" },
+{ "id": 376, "text": "十年窗下無人問，一舉成名天下知。", "source": "高明《琵琶記》" },
+{ "id": 377, "text": "良辰美景奈何天，賞心樂事誰家院？", "source": "湯顯祖《牡丹亭》" },
+{ "id": 378, "text": "金玉其外，敗絮其中。", "source": "劉基《賣柑者言》" },
+{ "id": 379, "text": "人逢喜事精神爽，月到中秋分外明。", "source": "馮夢龍《古今小說》" },
+{ "id": 380, "text": "觀棋不語真君子，把酒多言是小人。", "source": "馮夢龍《醒世恆言》" },
+{ "id": 381, "text": "留得青山在，不怕沒柴燒。", "source": "凌濛初《初刻拍案驚奇》" },
+{ "id": 382, "text": "謀事在人，成事在天。", "source": "羅貫中《三國演義》" },
+{ "id": 383, "text": "周郎妙計安天下，賠了夫人又折兵。", "source": "羅貫中《三國演義》" },
+{ "id": 384, "text": "明日復明日，明日何其多。我生待明日，萬事成蹉跎。", "source": "錢福《明日歌》" },
+{ "id": 385, "text": "粉身碎骨渾不怕，要留清白在人間。", "source": "于謙《石灰吟》" },
+{"id": "386", "text": "但願蒼生俱飽暖，不辭辛苦出山林。", "source": "于謙《詠煤炭》"},
+{ "id": "387", "text": "世事洞明皆學問，人情練達即文章。", "source": "曹雪芹《紅樓夢》" },
+{ "id": "388", "text": "友如作畫須求淡，山似論文不喜平。", "source": "翁照《尚湖晚步》" },
+{ "id": "389", "text": "千磨萬擊還堅勁，任爾東西南北風。", "source": "鄭燮《竹石》" },
+{ "id": "390", "text": "海納百川，有容乃大；壁立千仞，無欲則剛。", "source": "林則徐・對聯" },
+{ "id": "391", "text": "天下興亡，匹夫有責。", "source": "顧炎武《日知錄》" },
+{ "id": "392", "text": "落紅不是無情物，化作春泥更護花。", "source": "龔自珍《己亥雜詩》" },
+{ "id": "393", "text": "九州生氣恃風雷，萬馬齊喑究可哀。", "source": "龔自珍《己亥雜詩》" },
+{ "id": "394", "text": "我勸天公重抖擻，不拘一格降人才。", "source": "龔自珍《己亥雜詩》" },
+{ "id": "395", "text": "我自橫刀向天笑，去留肝膽兩崑崙。", "source": "譚嗣同《獄中題壁》" },
+{ "id": "396", "text": "江山代有才人出，各領風騷數百年。", "source": "趙翼《論詩五首》" },
+{ "id": "397", "text": "橫眉冷對千夫指，俯首甘為孺子牛。", "source": "魯迅《自嘲》" },
+{ "id": "398", "text": "寄意寒星荃不察，我以我血薦軒轅。", "source": "魯迅《自題小像》" },
+{ "id": "399", "text": "俏也不爭春，只把春來報。待到山花爛漫時，她在叢中笑。", "source": "毛澤東《卜算子・詠梅》" },
+{ "id": "400", "text": "天若有情天亦老，人間正道是滄桑。", "source": "毛澤東《七律・人民解放軍占領南京》" }
+     ];
+
+    // 遊戲狀態
+    let cards = [];
+    let firstCard = null, secondCard = null;
+    let lockBoard = false;
+    let matchedCount = 0;
+    let totalPairs = 5; // 預設5組
+    let selectedQuotes = []; // 當前選中的名句
+
+    // 計時器狀態
+    let timerInterval = null;
+    let startTime = 0;
+    let elapsed = 0;
+    let running = false;
+    let gameStarted = false;
+    let isPaused = false;
+
+    const boardEl = document.getElementById('game-board');
+    const statusEl = document.getElementById('status');
+    const timerEl = document.getElementById('timer');
+    const bestEl = document.getElementById('best');
+    const pairsEl = document.getElementById('pairs');
+    const totalPairsEl = document.getElementById('total-pairs');
+    const btnNew = document.getElementById('btn-new');
+    const btnPause = document.getElementById('btn-pause');
+    const btnResume = document.getElementById('btn-resume');
+    const pairCountSelect = document.getElementById('pair-count');
+    const answerContainerEl = document.getElementById('answer-container');
+
+    // 工具：洗牌
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // 取隨機名句組
+    function pickRandomQuotes(num) {
+      const indices = shuffle([...Array(quotes.length).keys()]);
+      return indices.slice(0, num).map(i => quotes[i]);
+    }
+
+    // 初始化答案欄
+    function initAnswerBoard() {
+      answerContainerEl.innerHTML = '';
+      selectedQuotes.forEach((quote, index) => {
+        const pairDiv = document.createElement('div');
+        pairDiv.className = 'answer-pair';
+        pairDiv.id = `answer-pair-${quote.id}`;
+        
+        // 添加序號（初始隱藏）
+        const numberDiv = document.createElement('div');
+        numberDiv.className = 'pair-number';
+        numberDiv.textContent = quote.id;
+        numberDiv.style.display = 'none'; // 初始隱藏
+        
+        const textDiv = document.createElement('div');
+        textDiv.className = 'answer-text';
+        textDiv.innerHTML = '<span class="answer-placeholder">等待配對...</span>';
+        const textType = document.createElement('div');
+        textType.className = 'answer-type';
+        textType.textContent = '名句';
+        textDiv.appendChild(textType);
+        
+        const sourceDiv = document.createElement('div');
+        sourceDiv.className = 'answer-source';
+        sourceDiv.innerHTML = '<span class="answer-placeholder">等待配對...</span>';
+        const sourceType = document.createElement('div');
+        sourceType.className = 'answer-type';
+        sourceType.textContent = '出處';
+        sourceDiv.appendChild(sourceType);
+        
+        pairDiv.appendChild(numberDiv);
+        pairDiv.appendChild(textDiv);
+        pairDiv.appendChild(sourceDiv);
+        answerContainerEl.appendChild(pairDiv);
+      });
+    }
+
+    // 更新答案欄
+    function updateAnswerBoard(quoteId, text, source) {
+      const pairDiv = document.getElementById(`answer-pair-${quoteId}`);
+      if (pairDiv) {
+        // 顯示序號
+        const numberDiv = pairDiv.querySelector('.pair-number');
+        numberDiv.style.display = 'flex';
+        setTimeout(() => {
+          numberDiv.classList.add('visible');
+        }, 10);
+        
+        const textDiv = pairDiv.querySelector('.answer-text');
+        const sourceDiv = pairDiv.querySelector('.answer-source');
+        
+        textDiv.innerHTML = text;
+        const textType = document.createElement('div');
+        textType.className = 'answer-type';
+        textType.textContent = '名句';
+        textDiv.appendChild(textType);
+        
+        sourceDiv.innerHTML = source;
+        const sourceType = document.createElement('div');
+        sourceType.className = 'answer-type';
+        sourceType.textContent = '出處';
+        sourceDiv.appendChild(sourceType);
+        
+        // 添加動畫效果
+        textDiv.style.animation = 'none';
+        sourceDiv.style.animation = 'none';
+        setTimeout(() => {
+          textDiv.style.animation = 'popIn 0.5s ease';
+          sourceDiv.style.animation = 'popIn 0.5s ease';
+        }, 10);
+      }
+    }
+
+    // 計時器：格式化
+    function formatTime(ms) {
+      const totalMs = Math.max(0, ms | 0);
+      const totalSec = Math.floor(totalMs / 1000);
+      const min = Math.floor(totalSec / 60);
+      const sec = totalSec % 60;
+      const deci = Math.floor((totalMs % 1000) / 100);
+      const mm = String(min).padStart(2, '0');
+      const ss = String(sec).padStart(2, '0');
+      return `${mm}:${ss}.${deci}`;
+    }
+
+    // 計時器：更新畫面
+    function updateTimerDisplay() {
+      timerEl.textContent = formatTime(elapsed);
+    }
+
+    // 計時器：開始
+    function startTimer() {
+      if (running) return;
+      running = true;
+      startTime = performance.now();
+      timerInterval = setInterval(() => {
+        const now = performance.now();
+        elapsed += (now - startTime);
+        startTime = now;
+        updateTimerDisplay();
+      }, 100);
+    }
+
+    // 計時器：暫停
+    function pauseTimer() {
+      if (!running) return;
+      running = false;
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    // 計時器：恢復
+    function resumeTimer() {
+      if (running) return;
+      running = true;
+      startTime = performance.now();
+      timerInterval = setInterval(() => {
+        const now = performance.now();
+        elapsed += (now - startTime);
+        startTime = now;
+        updateTimerDisplay();
+      }, 100);
+    }
+
+    // 計時器：重置
+    function resetTimer() {
+      pauseTimer();
+      elapsed = 0;
+      running = false;
+      gameStarted = false;
+      updateTimerDisplay();
+      btnPause.style.display = '';
+      btnResume.style.display = 'none';
+      isPaused = false;
+    }
+
+    // 最佳成績
+    const BEST_KEY = 'match-quote-best-time-ms';
+    function loadBest() {
+      const v = localStorage.getItem(BEST_KEY);
+      if (v && !isNaN(+v)) {
+        bestEl.textContent = formatTime(+v);
+      } else {
+        bestEl.textContent = '—';
+      }
+    }
+    
+    function saveBestIfBetter(ms) {
+      const v = localStorage.getItem(BEST_KEY);
+      if (!v || ms < +v) {
+        localStorage.setItem(BEST_KEY, String(ms));
+        bestEl.textContent = formatTime(ms);
+      }
+    }
+
+    // 顯示完成訊息
+    function showCompletionMessage() {
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'completed-message';
+      messageDiv.innerHTML = `
+        <h2>恭喜完成！</h2>
+        <p>您用時: ${formatTime(elapsed)}</p>
+        <p>${elapsed < 60000 ? '🎉 太棒了！' : '👍 做得很好！'}</p>
+        <button onclick="this.parentElement.parentElement.remove()">繼續遊戲</button>
+      `;
+      
+      overlay.appendChild(messageDiv);
+      document.body.appendChild(overlay);
+    }
+
+    // 開新局
+    function newGame() {
+      statusEl.textContent = '請翻開兩張卡牌進行配對';
+      matchedCount = 0;
+      firstCard = null; 
+      secondCard = null; 
+      lockBoard = false;
+
+      // 獲取選擇的難度
+      totalPairs = parseInt(pairCountSelect.value);
+      totalPairsEl.textContent = totalPairs;
+      pairsEl.textContent = '0';
+
+      // 選取名句
+      selectedQuotes = pickRandomQuotes(totalPairs);
+
+      // 初始化答案欄
+      initAnswerBoard();
+
+      // 建立卡牌
+      cards = [];
+      selectedQuotes.forEach((item) => {
+        cards.push({ id: item.id, type: 'text', value: item.text });
+        cards.push({ id: item.id, type: 'source', value: item.source });
+      });
+      shuffle(cards);
+
+      // 渲染
+      boardEl.innerHTML = '';
+      cards.forEach((card, i) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.dataset.idx = i;
+        div.dataset.id = card.id;
+        div.dataset.type = card.type;
+        
+        // 卡片正面 - 顯示"翻牌"
+        const cardFront = document.createElement('div');
+        cardFront.className = 'card-front';
+        cardFront.innerText = '翻牌';
+        
+        // 卡片背面 - 顯示內容
+        const cardBack = document.createElement('div');
+        cardBack.className = 'card-back';
+        cardBack.innerText = card.value;
+        
+        div.appendChild(cardFront);
+        div.appendChild(cardBack);
+        div.onclick = () => flipCard(div, card, i);
+        boardEl.appendChild(div);
+      });
+
+      // 根據難度調整網格
+      if (totalPairs <= 5) {
+        boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
+      } else if (totalPairs <= 8) {
+        boardEl.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      } else {
+        boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
+      }
+
+      // 重置計時器
+      resetTimer();
+    }
+
+    // 翻牌
+    function flipCard(div, card, idx) {
+      if (lockBoard || isPaused) return;
+      if (div.classList.contains('flipped') || div.classList.contains('matched')) return;
+
+      // 第一次翻牌才開啟計時
+      if (!gameStarted) {
+        gameStarted = true;
+        startTimer();
+      }
+
+      div.classList.add('flipped');
+
+      if (!firstCard) {
+        firstCard = { div, card, idx };
+      } else if (!secondCard && firstCard.idx !== idx) {
+        secondCard = { div, card, idx };
+        lockBoard = true;
+
+        // 檢查配對
+        if (
+          firstCard.card.id === secondCard.card.id &&
+          firstCard.card.type !== secondCard.card.type
+        ) {
+          // 配對成功
+          setTimeout(() => {
+            firstCard.div.classList.add('matched');
+            secondCard.div.classList.add('matched');
+            
+            // 從遊戲板上移除配對成功的卡片
+            setTimeout(() => {
+              firstCard.div.style.visibility = 'hidden';
+              secondCard.div.style.visibility = 'hidden';
+            }, 500);
+            
+            // 更新答案欄
+            const quote = selectedQuotes.find(q => q.id === firstCard.card.id);
+            if (quote) {
+              updateAnswerBoard(quote.id, quote.text, quote.source);
+            }
+            
+            matchedCount++;
+            pairsEl.textContent = matchedCount;
+            resetTurn();
+
+            if (matchedCount === totalPairs) {
+              pauseTimer();
+              statusEl.textContent = `恭喜你全部配對成功！用時：${formatTime(elapsed)}`;
+              saveBestIfBetter(elapsed);
+              setTimeout(showCompletionMessage, 500);
+            }
+          }, 500);
+        } else {
+          // 配對失敗
+          setTimeout(() => {
+            firstCard.div.classList.remove('flipped');
+            secondCard.div.classList.remove('flipped');
+            resetTurn();
+          }, 1000);
+        }
+      }
+    }
+
+    function resetTurn() {
+      [firstCard, secondCard] = [null, null];
+      lockBoard = false;
+    }
+
+    // 按鈕事件
+    btnNew.addEventListener('click', newGame);
+    btnPause.addEventListener('click', () => {
+      pauseTimer();
+      isPaused = true;
+      btnPause.style.display = 'none';
+      btnResume.style.display = '';
+      statusEl.textContent = '已暫停。點選「繼續」繼續遊戲。';
+    });
+    btnResume.addEventListener('click', () => {
+      resumeTimer();
+      isPaused = false;
+      btnPause.style.display = '';
+      btnResume.style.display = 'none';
+      statusEl.textContent = '請翻開兩張卡牌進行配對';
+    });
+    
+    // 難度選擇事件
+    pairCountSelect.addEventListener('change', newGame);
+
+    // 初始化
+    loadBest();
+    newGame();
+  </script>
+</body>
+</html>
