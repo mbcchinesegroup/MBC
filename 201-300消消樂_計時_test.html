@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>201-300名句配對消消樂遊戲</title>
+  <title>101-200名句配對消消樂遊戲</title>
   <style>
     body {
       font-family: "Microsoft JhengHei", Arial, sans-serif;
@@ -430,7 +430,7 @@
     <div style="text-align: center; margin: 15px 0; width: 100%;">
  </div>
 <h1>中文組</h1>
-    <h1>201-300名句配對消消樂</h1>
+    <h1>101-200名句配對消消樂</h1>
     <div class="topbar">
       <div class="stat">計時：<span id="timer">00:00.0</span></div>
       <div class="stat">配對：<span id="pairs">0</span>/<span id="total-pairs">0</span></div>
@@ -476,7 +476,7 @@
     <button id="mobile-pause" class="mobile-btn">暫停</button>
     <button id="mobile-resume" class="mobile-btn" style="display:none;">繼續</button>
   </div>
-
+  
   <script>
     // 完整的名句列表（帶有序號）
     const quotes = [
@@ -582,88 +582,7 @@
 { "id": 300, "text": "曾經滄海難為水，除卻巫山不是雲。", "source": "元稹《離思》" }
      ];
 
-     // 遊戲狀態
-    let cards = [];
-    let firstCard = null, secondCard = null;
-    let lockBoard = false;
-    let matchedCount = 0;
-    let totalPairs = 5; // 預設5組
-    let selectedQuotes = []; // 當前選中的名句
-
-    // 計時器狀態
-    let timerInterval = null;
-    let startTime = 0;
-    let elapsed = 0;
-    let running = false;
-    let gameStarted = false;
-    let isPaused = false;
-
-    const boardEl = document.getElementById('game-board');
-    const statusEl = document.getElementById('status');
-    const timerEl = document.getElementById('timer');
-    const bestEl = document.getElementById('best');
-    const pairsEl = document.getElementById('pairs');
-    const totalPairsEl = document.getElementById('total-pairs');
-    const btnNew = document.getElementById('btn-new');
-    const btnPause = document.getElementById('btn-pause');
-    const btnResume = document.getElementById('btn-resume');
-    const btnHome = document.getElementById('btn-home');
-    const pairCountSelect = document.getElementById('pair-count');
-    const answerContainerEl = document.getElementById('answer-container');
-
-    // 工具：洗牌
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    // 取隨機名句組
-    function pickRandomQuotes(num) {
-      const indices = shuffle([...Array(quotes.length).keys()]);
-      return indices.slice(0, num).map(i => quotes[i]);
-    }
-
-    // 初始化答案欄
-    function initAnswerBoard() {
-      answerContainerEl.innerHTML = '';
-      selectedQuotes.forEach((quote, index) => {
-        const pairDiv = document.createElement('div');
-        pairDiv.className = 'answer-pair';
-        pairDiv.id = `answer-pair-${quote.id}`;
-        
-        // 添加序號（初始隱藏）
-        const numberDiv = document.createElement('div');
-        numberDiv.className = 'pair-number';
-        numberDiv.textContent = quote.id;
-        numberDiv.style.display = 'none'; // 初始隱藏
-        
-        const textDiv = document.createElement('div');
-        textDiv.className = 'answer-text';
-        textDiv.innerHTML = '<span class="answer-placeholder">等待配對...</span>';
-        const textType = document.createElement('div');
-        textType.className = 'answer-type';
-        textType.textContent = '名句';
-        textDiv.appendChild(textType);
-        
-        const sourceDiv = document.createElement('div');
-        sourceDiv.className = 'answer-source';
-        sourceDiv.innerHTML = '<span class="answer-placeholder">等待配對...</span>';
-        const sourceType = document.createElement('div');
-        sourceType.className = 'answer-type';
-        sourceType.textContent = '出處';
-        sourceDiv.appendChild(sourceType);
-        
-        pairDiv.appendChild(numberDiv);
-        pairDiv.appendChild(textDiv);
-        pairDiv.appendChild(sourceDiv);
-        answerContainerEl.appendChild(pairDiv);
-      });
-    }
-
-     // 遊戲狀態
+    // 遊戲狀態
     let cards = [];
     let firstCard = null, secondCard = null;
     let lockBoard = false;
