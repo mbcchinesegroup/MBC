@@ -3,308 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>400名句配對消消樂</title>
+  <title>1-100名句配對消消樂遊戲</title>
   <style>
     body {
       font-family: "Microsoft JhengHei", Arial, sans-serif;
       background: linear-gradient(135deg, #f4f8fb 0%, #e0eaf8 100%);
-      margin: 0; padding: 0;
-      display: flex; flex-direction: column; align-items: center;
+      margin: 0; 
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       min-height: 100vh;
     }
-    h1 { 
-      margin: 20px 0 6px; 
+    
+    h1 {
       color: #1976d2;
       text-align: center;
+      margin-bottom: 30px;
     }
-    .container {
-      width: 95%;
-      max-width: 1200px;
+    
+    .button-container {
       display: flex;
       flex-direction: column;
-      align-items: center;
-    }
-    .topbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 12px 18px;
-      margin: 6px 12px 10px;
-      font-size: 16px;
+      gap: 15px;
       width: 100%;
+      max-width: 300px;
     }
-    .stat {
-      background: #fff;
-      border-radius: 8px;
-      padding: 8px 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      min-width: 120px;
-      text-align: center;
-      border-left: 4px solid #1976d2;
-    }
-    #status { 
-      margin: 6px 0 10px; 
-      font-size: 18px; 
-      font-weight: bold;
-      color: #333;
-      text-align: center;
-      padding: 8px 16px;
-      background: rgba(255,255,255,0.7);
-      border-radius: 20px;
-    }
-    .game-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #game-board {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-      max-width: 1000px;
-      width: 100%;
-      margin: 10px auto 20px;
-    }
-    .card {
-      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-      color: #fff;
-      border-radius: 10px;
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      user-select: none;
-      padding: 10px;
-      text-align: center;
-      overflow: hidden;
-    }
-    .card:active { transform: scale(0.98); }
-    .card.flipped {
-      background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
-      color: #222;
-      cursor: default;
-    }
-    .card.matched {
-      background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
-      color: #2e7d32;
-      cursor: default;
-      box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
-    }
-    .card.mismatched {
-      background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
-      color: #c62828;
-    }
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backface-visibility: hidden;
-      transition: transform 0.6s;
-      border-radius: 10px;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    .card-front {
-      background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-      color: white;
-      font-weight: bold;
-    }
-    .card-back {
-      background: white;
-      color: #222;
-      transform: rotateY(180deg);
-      justify-content: center;
-    }
-    .card.flipped .card-front {
-      transform: rotateY(180deg);
-    }
-    .card.flipped .card-back {
-      transform: rotateY(0deg);
-    }
-    button {
-      margin: 6px 0 4px;
-      padding: 10px 20px;
-      font-size: 16px;
+    
+    .nav-button {
+      padding: 15px 25px;
+      font-size: 18px;
       border: none;
       background: #1976d2;
       color: #fff;
-      border-radius: 5px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
-    }
-    button:hover {
-      background: #1565c0;
-      transform: translateY(-2px);
-    }
-    button:active { transform: translateY(1px); }
-    .controls {
-      display: flex; 
-      gap: 10px; 
-      flex-wrap: wrap; 
-      justify-content: center;
-      margin-bottom: 6px;
-      width: 100%;
-    }
-    .settings {
-      display: flex;
-      gap: 10px;
-      margin: 10px 0;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .setting-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: white;
-      padding: 8px 12px;
-      border-radius: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .note { 
-      font-size: 14px; 
-      color: #555; 
-      margin-top: 4px; 
-      text-align: center;
-      max-width: 600px;
-    }
-    .completed-message {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px 40px;
-      border-radius: 15px;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-      text-align: center;
-      z-index: 100;
-      animation: popIn 0.5s ease;
-    }
-    
-    /* 答案欄樣式 */
-    #answer-board {
-      width: 100%;
-      max-width: 1000px;
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    #answer-board h2 {
-      text-align: center;
-      color: #1976d2;
-      margin-top: 0;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #1976d2;
-    }
-    .answer-pair {
-      display: flex;
-      margin-bottom: 15px;
-      border-bottom: 1px dashed #ccc;
-      padding-bottom: 15px;
-      align-items: center;
-      min-height: 80px;
-    }
-    .answer-pair:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    .pair-number {
-      width: 30px;
-      height: 30px;
-      background: #1976d2;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      margin-right: 10px;
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-    }
-    .pair-number.visible {
-      opacity: 1;
-    }
-    .answer-text, .answer-source {
-      flex: 1;
-      padding: 10px;
-      background: #f9f9f9;
       border-radius: 8px;
-      margin: 0 5px;
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
       text-align: center;
-      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
-      position: relative;
-    }
-    .answer-text {
-      border-left: 4px solid #4caf50;
-    }
-    .answer-source {
-      border-left: 4px solid #2196f3;
-    }
-    .answer-type {
-      position: absolute;
-      top: 5px;
-      left: 10px;
-      font-size: 12px;
-      color: #888;
-    }
-    .answer-placeholder {
-      color: #999;
-      font-style: italic;
     }
     
-    @keyframes popIn {
-      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .nav-button:hover {
+      background: #1565c0;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 99;
-    }
-    @media (max-width: 1000px) {
-      #game-board { grid-template-columns: repeat(4, 1fr); }
-    }
-    @media (max-width: 800px) {
-      #game-board { grid-template-columns: repeat(3, 1fr); }
-      .card { height: 100px; font-size: 14px; }
-      .answer-pair { flex-direction: column; }
-      .answer-text, .answer-source { margin: 5px 0; width: 100%; }
-      .pair-number { margin: 0 0 5px 0; }
-    }
-    @media (max-width: 600px) {
-      #game-board { grid-template-columns: repeat(2, 1fr); }
-      .card { height: 90px; }
-      .stat { min-width: auto; font-size: 14px; }
-      h1 { font-size: 1.5rem; }
-    }
-    @media (max-width: 400px) {
-      #game-board { grid-template-columns: repeat(2, 1fr); }
-      .card { height: 80px; font-size: 12px; padding: 5px; }
+    
+    .nav-button:active {
+      transform: translateY(1px);
     }
   </style>
 </head>
@@ -335,10 +82,36 @@
     </style>
 </head>
 <body>
-    <a href="https://wongonkei825-alt.github.io/MBC/1-100%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html" class="btn">1-100句</a>
-    <a href="https://wongonkei825-alt.github.io/MBC/101-200%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html" class="btn">101-200句</a>
-    <a href="https://wongonkei825-alt.github.io/MBC/201-300%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html" class="btn">201-300句</a>
-    <a href="https://wongonkei825-alt.github.io/MBC/301-400%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html" class="btn">301-400句</a>
-    <a href="https://wongonkei825-alt.github.io/MBC/1-400%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html" class="btn">1-400句</a>
+     <div class="button-container">
+    <button id="1" class="nav-button">名句 1-100</button>
+    <button id="2" class="nav-button">名句 101-200</button>
+    <button id="3" class="nav-button">名句 201-300</button>
+    <button id="4" class="nav-button">名句 301-400</button>
+    <button id="5" class="nav-button">名句 1-400</button>
+  </div>
+
+  <script>
+    // 基础URL
+    const baseURL = "https://wongonkei825-alt.github.io/MBC/";
+    
+    // 为每个按钮设置不同的页面
+    const buttonPages = {
+      "1": "1-100%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html",
+      "2": "101-200%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html",
+      "3": "201-300%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html",
+      "4": "301-400%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html",
+      "5": "1-400%E6%B6%88%E6%B6%88%E6%A8%82_%E8%A8%88%E6%99%82_test.html"
+    };
+
+    // 为所有按钮添加点击事件
+    document.querySelectorAll('.nav-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const buttonId = this.id;
+        const page = buttonPages[buttonId];
+        if (page) {
+          window.location.href = baseURL + page;
+        }
+      });
+    });
+  </script>
 </body>
-</html>
