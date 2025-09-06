@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>階段400名句配對消消樂遊戲</title>
+  <title>階階400名句配對消消樂遊戲</title>
   <style>
     body {
       font-family: "Microsoft JhengHei", Arial, sans-serif;
@@ -119,6 +119,7 @@
       color: #2e7d32;
       cursor: default;
       box-shadow: 0 0 15px rgba(76, 175, 80, 0.4);
+      transform: scale(0.95);
     }
     .card.mismatched {
       background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
@@ -418,6 +419,30 @@
       max-width: 600px;
     }
     
+    /* 進度條樣式 */
+    .progress-container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 10px 0;
+      background: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
     /* 響應式設計 */
     @media (max-width: 1000px) {
       #game-board { grid-template-columns: repeat(4, 1fr); }
@@ -516,6 +541,31 @@
       -ms-user-select: none;
       user-select: none;
     }
+
+    /* 練習模式卡片高亮效果 */
+    .card.practice-mode {
+      transform: scale(1);
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+    
+    .card.practice-mode:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .card.practice-mode:active {
+      transform: scale(0.98);
+    }
+    
+    .card.practice-mode.flipped {
+      background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+      color: #222;
+      cursor: pointer;
+    }
+    
+    .card.practice-mode.selected {
+      box-shadow: 0 0 0 3px #ff9800;
+    }
   </style>
 </head>
 <body class="no-select">
@@ -530,26 +580,32 @@
     <h1>階段400名句配對消樂戲</h1>
     <div class="topbar">
       <div class="stat">計時：<span id="timer">00:00.0</span></div>
-      <div class="stat">配對：<span id="pairs">0</span>/<span id="total-pairs">0</span></div>
+      <div class="stat">配對：<span id="pairs">0</span>/<span id="total-pairs">5</span></div>
+      <div class="stat">進度：<span id="progress">0</span>/100</div>
       <div class="stat">最佳：<span id="best">—</span></div>
     </div>
 
-    <div id="status">請選擇難度開始遊戲</div>
+    <!-- 進度條 -->
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
+    </div>
+
+    <div id="status">練習模式 - 所有卡片已翻開，請點擊配對</div>
 
     <div class="settings">
       <div class="setting-item">
-        <label for="pair-count">遊戲難度:</label>
+        <label for="pair-count">遊戲模式:</label>
         <select id="pair-count">
-          <option value="5">簡單 (5組)</option>
+          <option value="5">練習模式 (5組一輪)</option>
           <option value="8">中等 (8組)</option>
           <option value="10">困難 (10組)</option>
-          <option value="100">終極困難 (100組)</option>
+          <option value="50">終極困難 (50組)</option>
         </select>
       </div>
     </div>
 
     <div id="extreme-warning" class="extreme-warning" style="display:none;">
-      警告：終極困難模式包含100組配對，記憶時間60秒，僅推薦記憶力超強者挑戰！
+      警告：終極困難模式包含50組配對，記憶時間60秒，僅推薦記憶力超強者挑戰！
     </div>
 
     <div class="controls">
@@ -560,7 +616,7 @@
       <button id="btn-pause" class="btn" style="display:none;">暫停</button>
       <button id="btn-resume" class="btn" style="display:none;">繼續</button>
     </div>
-    <div class="note">提示：中等和困難模式可查看卡片內容，終極困難模式有60秒記憶時間。配對成功時卡片會移動到下方答案欄。</div>
+    <div class="note">提示：練習模式下所有卡片一開始就是翻開的，點擊卡片後開始計時。完成5組後會自動加載新的5組，直到完成100組。</div>
 
     <div class="game-container">
       <div id="game-board"></div>
@@ -582,7 +638,7 @@
     <button id="mobile-pause" class="mobile-btn" style="display:none;">暫停</button>
     <button id="mobile-resume" class="mobile-btn" style="display:none;">繼續</button>
   </div>
-
+  
   <script>
     // 完整的名句列表（帶有序號）
     const quotes = [
@@ -995,6 +1051,8 @@
     let matchedCount = 0;
     let totalPairs = 5; // 預設5組
     let selectedQuotes = []; // 當前選中的名句
+    let totalCompleted = 0; // 總完成配對數
+    const TOTAL_QUOTES = 100; // 總共需要完成100組
 
     // 計時器狀態
     let timerInterval = null;
@@ -1003,9 +1061,9 @@
     let running = false;
     let gameStarted = false;
     let isPaused = false;
-    let isPreviewMode = false; // 新增：預覽模式標誌
-    let hasPreviewed = false; // 新增：是否已經查看過卡片
-    let previewTimer = null; // 新增：預覽計時器
+    let isPreviewMode = false;
+    let hasPreviewed = false;
+    let previewTimer = null;
 
     const boardEl = document.getElementById('game-board');
     const statusEl = document.getElementById('status');
@@ -1013,6 +1071,8 @@
     const bestEl = document.getElementById('best');
     const pairsEl = document.getElementById('pairs');
     const totalPairsEl = document.getElementById('total-pairs');
+    const progressEl = document.getElementById('progress');
+    const progressBarEl = document.getElementById('progress-bar');
     const btnNew = document.getElementById('btn-new');
     const btnPreview = document.getElementById('btn-preview');
     const btnStart = document.getElementById('btn-start');
@@ -1042,8 +1102,23 @@
 
     // 取隨機名句組
     function pickRandomQuotes(num) {
-      // 終極困難模式使用所有名句
-      if (num === 100) {
+      // 練習模式：每次隨機取5組
+      if (num === 5) {
+        const availableQuotes = [...quotes];
+        const selected = [];
+        
+        // 隨機選擇5個不重複的名句
+        while (selected.length < 5 && availableQuotes.length > 0) {
+          const randomIndex = Math.floor(Math.random() * availableQuotes.length);
+          selected.push(availableQuotes[randomIndex]);
+          availableQuotes.splice(randomIndex, 1);
+        }
+        
+        return selected;
+      }
+      
+      // 終極困難模式使用50組不重複名句
+      if (num === 50) {
         return [...quotes];
       }
       
@@ -1069,7 +1144,7 @@
         const numberDiv = document.createElement('div');
         numberDiv.className = 'pair-number';
         numberDiv.textContent = quote.id;
-        numberDiv.style.display = 'none'; // 初始隱藏
+        numberDiv.style.display = 'none';
         
         const textDiv = document.createElement('div');
         textDiv.className = 'answer-text';
@@ -1098,7 +1173,6 @@
     function updateAnswerBoard(quoteId, text, source) {
       const pairDiv = document.getElementById(`answer-pair-${quoteId}`);
       if (pairDiv) {
-        // 顯示序號
         const numberDiv = pairDiv.querySelector('.pair-number');
         numberDiv.style.display = 'flex';
         setTimeout(() => {
@@ -1120,7 +1194,6 @@
         sourceType.textContent = '出處';
         sourceDiv.appendChild(sourceType);
         
-        // 添加動畫效果
         textDiv.style.animation = 'none';
         sourceDiv.style.animation = 'none';
         setTimeout(() => {
@@ -1128,6 +1201,14 @@
           sourceDiv.style.animation = 'popIn 0.5s ease';
         }, 10);
       }
+    }
+
+    // 更新進度條
+    function updateProgress() {
+      const progressPercent = (totalCompleted / TOTAL_QUOTES) * 100;
+      progressBarEl.style.width = `${progressPercent}%`;
+      progressBarEl.textContent = `${Math.round(progressPercent)}%`;
+      progressEl.textContent = totalCompleted;
     }
 
     // 計時器：格式化
@@ -1151,7 +1232,7 @@
     function startTimer() {
       if (running) return;
       running = true;
-      gameStarted = true; // 確保遊戲狀態標記為已開始
+      gameStarted = true;
       startTime = performance.now();
       timerInterval = setInterval(() => {
         const now = performance.now();
@@ -1223,7 +1304,7 @@
       const messageDiv = document.createElement('div');
       messageDiv.className = 'completed-message';
       messageDiv.innerHTML = `
-        <h2>恭喜完成！</h2>
+        <h2>恭喜完成所有100組！</h2>
         <p>您用時: ${formatTime(elapsed)}</p>
         <p>${elapsed < 60000 ? '🎉 太棒了！' : '👍 做得很好！'}</p>
         <button class="btn" onclick="this.parentElement.parentElement.remove()">繼續遊戲</button>
@@ -1233,47 +1314,55 @@
       document.body.appendChild(overlay);
     }
 
+    // 加載下一組
+    function nextSet() {
+      totalCompleted += 5;
+      updateProgress();
+      
+      if (totalCompleted >= TOTAL_QUOTES) {
+        pauseTimer();
+        statusEl.textContent = `恭喜你全部配對成功！用時：${formatTime(elapsed)}`;
+        saveBestIfBetter(elapsed);
+        setTimeout(showCompletionMessage, 500);
+        return;
+      }
+      
+      newGame();
+    }
+
     // 開新局
     function newGame() {
-      statusEl.textContent = '請點擊「開始遊戲」開始';
+      statusEl.textContent = '練習模式 - 所有卡片已翻開，請點擊配對';
       matchedCount = 0;
       firstCard = null; 
       secondCard = null; 
       lockBoard = false;
-      isPreviewMode = false; // 設置為非預覽模式
-      hasPreviewed = false; // 重置查看狀態
+      isPreviewMode = false;
+      hasPreviewed = false;
 
-      // 清除預覽計時器
       if (previewTimer) {
         clearInterval(previewTimer);
         previewTimer = null;
       }
       
-      // 移除預覽計時器顯示
       const timerDiv = document.getElementById('preview-timer');
       if (timerDiv) {
         timerDiv.remove();
       }
 
-      // 獲取選擇的難度
       totalPairs = parseInt(pairCountSelect.value);
       totalPairsEl.textContent = totalPairs;
       pairsEl.textContent = '0';
 
-      // 顯示或隱藏終極困難模式警告
-      if (totalPairs === 100) {
+      if (totalPairs === 50) {
         extremeWarningEl.style.display = 'block';
       } else {
         extremeWarningEl.style.display = 'none';
       }
 
-      // 選取名句
       selectedQuotes = pickRandomQuotes(totalPairs);
-
-      // 初始化答案欄
       initAnswerBoard();
 
-      // 建立卡牌
       cards = [];
       selectedQuotes.forEach((item) => {
         cards.push({ id: item.id, type: 'text', value: item.text });
@@ -1281,21 +1370,18 @@
       });
       shuffle(cards);
 
-      // 渲染
       boardEl.innerHTML = '';
       cards.forEach((card, i) => {
         const div = document.createElement('div');
-        div.className = 'card';
+        div.className = 'card practice-mode';
         div.dataset.idx = i;
         div.dataset.id = card.id;
         div.dataset.type = card.type;
         
-        // 卡片正面 - 顯示"翻牌"
         const cardFront = document.createElement('div');
         cardFront.className = 'card-front';
         cardFront.innerText = '翻牌';
         
-        // 卡片背面 - 顯示內容
         const cardBack = document.createElement('div');
         cardBack.className = 'card-back';
         cardBack.innerText = card.value;
@@ -1303,20 +1389,22 @@
         div.appendChild(cardFront);
         div.appendChild(cardBack);
         
+        if (totalPairs === 5) {
+          div.classList.add('flipped');
+        }
+        
         boardEl.appendChild(div);
       });
 
-      // 根據難度調整網格
       if (totalPairs <= 5) {
         boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
+        statusEl.textContent = `練習模式 - 已完成 ${totalCompleted}/100`;
       } else if (totalPairs <= 8) {
         boardEl.style.gridTemplateColumns = 'repeat(4, 1fr)';
       } else if (totalPairs <= 10) {
         boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
-      } else {
-        // 終極困難模式使用更多列
-        boardEl.style.gridTemplateColumns = 'repeat(10, 1fr)';
-        // 調整卡片大小以適應更多卡片
+      } else if (totalPairs === 50) {
+        boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
         const cardElements = boardEl.querySelectorAll('.card');
         cardElements.forEach(card => {
           card.style.height = '80px';
@@ -1324,38 +1412,37 @@
         });
       }
 
-      // 重置計時器
       resetTimer();
       
-      // 根據難度設置按鈕狀態
-      if (totalPairs > 5) {
-        // 中等和困難模式顯示查看卡片按鈕
+      if (totalPairs > 5 && totalPairs !== 50) {
         btnPreview.style.display = '';
         btnStart.style.display = 'none';
         mobilePreview.style.display = '';
         mobileStart.style.display = 'none';
         statusEl.textContent = '您可以先查看卡片內容';
+      } else if (totalPairs === 50) {
+        btnPreview.style.display = '';
+        btnStart.style.display = 'none';
+        mobilePreview.style.display = '';
+        mobileStart.style.display = 'none';
+        statusEl.textContent = '終極困難模式 - 請先查看卡片';
       } else {
-        // 簡單模式直接顯示開始遊戲按鈕
         btnPreview.style.display = 'none';
-        btnStart.style.display = '';
+        btnStart.style.display = 'none';
         mobilePreview.style.display = 'none';
-        mobileStart.style.display = '';
-        statusEl.textContent = '請點擊「開始遊戲」開始';
+        mobileStart.style.display = 'none';
+        statusEl.textContent = '練習模式 - 所有卡片已翻開，請點擊配對';
       }
       
       btnPause.style.display = 'none';
-      btnResume.style.display = 'none';
       mobilePause.style.display = 'none';
-      mobileResume.style.display = 'none';
       
-      // 重新綁定卡片點擊事件
       bindCardEvents();
     }
 
     // 查看卡片
     function previewCards() {
-      if (hasPreviewed) return; // 如果已經查看過，不再執行
+      if (hasPreviewed) return;
       
       const cardElements = boardEl.querySelectorAll('.card');
       cardElements.forEach(div => {
@@ -1370,15 +1457,13 @@
       mobilePreview.style.display = 'none';
       mobileStart.style.display = 'none';
       
-      // 根據難度設置不同的查看時間
-      let previewTime = 8; // 默認8秒
+      let previewTime = 8;
       if (totalPairs === 10) {
-        previewTime = 10; // 困難模式10秒
-      } else if (totalPairs === 100) {
-        previewTime = 60; // 終極困難模式60秒
+        previewTime = 10;
+      } else if (totalPairs === 50) {
+        previewTime = 60;
       }
       
-      // 顯示倒計時
       const timerDiv = document.createElement('div');
       timerDiv.className = 'preview-timer';
       timerDiv.id = 'preview-timer';
@@ -1387,7 +1472,6 @@
       
       statusEl.textContent = `記憶時間：${previewTime}秒`;
       
-      // 開始倒計時
       let currentTime = previewTime;
       previewTimer = setInterval(() => {
         currentTime--;
@@ -1403,13 +1487,11 @@
 
     // 開始遊戲
     function startGame() {
-      // 清除預覽計時器
       if (previewTimer) {
         clearInterval(previewTimer);
         previewTimer = null;
       }
       
-      // 移除預覽計時器顯示
       const timerDiv = document.getElementById('preview-timer');
       if (timerDiv) {
         timerDiv.remove();
@@ -1429,7 +1511,6 @@
       mobilePause.style.display = '';
       statusEl.textContent = '請翻開兩張卡牌進行配對';
       
-      // 開始計時
       startTimer();
     }
 
@@ -1438,15 +1519,13 @@
       const cardElements = boardEl.querySelectorAll('.card');
       cardElements.forEach((div, i) => {
         const card = cards[i];
-        // 移除舊的事件監聽器
         div.onclick = null;
         div.ontouchstart = null;
         
-        // 添加新的事件監聽器
         div.addEventListener('click', () => flipCard(div, card, i));
         div.addEventListener('touchstart', (e) => {
-          if (e.touches.length === 1) { // 確保是單指觸控
-            e.preventDefault(); // 防止手機上的默認行為
+          if (e.touches.length === 1) {
+            e.preventDefault();
             flipCard(div, card, i);
           }
         }, { passive: false });
@@ -1455,15 +1534,41 @@
 
     // 翻牌
     function flipCard(div, card, idx) {
-      // 如果是預覽模式，不允許翻牌
-      if (isPreviewMode) return;
-      
       if (lockBoard || isPaused || div.classList.contains('matched')) return;
+      
+      if (totalPairs === 5 && div.classList.contains('flipped')) {
+        if (!gameStarted) {
+          startTimer();
+          btnPause.style.display = '';
+          mobilePause.style.display = '';
+        }
+
+        if (firstCard && firstCard.div === div) {
+          firstCard.div.classList.remove('selected');
+          firstCard = null;
+          return;
+        }
+
+        div.classList.add('selected');
+
+        if (!firstCard) {
+          firstCard = { div, card, idx };
+          return;
+        }
+        
+        secondCard = { div, card, idx };
+        lockBoard = true;
+
+        checkForMatch();
+        return;
+      }
+      
       if (div.classList.contains('flipped')) return;
 
-      // 第一次翻牌才開啟計時
       if (!gameStarted) {
-        startTimer(); // 直接啟動計時器
+        startTimer();
+        btnPause.style.display = '';
+        mobilePause.style.display = '';
       }
 
       div.classList.add('flipped');
@@ -1473,11 +1578,9 @@
         return;
       }
       
-      // 已經有一張卡片被翻開，現在翻開第二張
       secondCard = { div, card, idx };
       lockBoard = true;
 
-      // 檢查配對
       checkForMatch();
     }
 
@@ -1487,9 +1590,7 @@
                      firstCard.card.type !== secondCard.card.type;
 
       if (isMatch) {
-        // 配對成功
         disableCards();
-        // 更新答案欄
         const quote = selectedQuotes.find(q => q.id === firstCard.card.id);
         if (quote) {
           updateAnswerBoard(quote.id, quote.text, quote.source);
@@ -1499,16 +1600,20 @@
         pairsEl.textContent = matchedCount;
 
         if (matchedCount === totalPairs) {
-          // 遊戲完成
-          setTimeout(() => {
-            pauseTimer();
-            statusEl.textContent = `恭喜你全部配對成功！用時：${formatTime(elapsed)}`;
-            saveBestIfBetter(elapsed);
-            setTimeout(showCompletionMessage, 500);
-          }, 500);
+          if (totalPairs === 5) {
+            setTimeout(() => {
+              nextSet();
+            }, 1000);
+          } else {
+            setTimeout(() => {
+              pauseTimer();
+              statusEl.textContent = `恭喜你全部配對成功！用時：${formatTime(elapsed)}`;
+              saveBestIfBetter(elapsed);
+              setTimeout(showCompletionMessage, 500);
+            }, 500);
+          }
         }
       } else {
-        // 配對失敗
         unflipCards();
       }
     }
@@ -1516,8 +1621,9 @@
     function disableCards() {
       firstCard.div.classList.add('matched');
       secondCard.div.classList.add('matched');
+      firstCard.div.classList.remove('selected');
+      secondCard.div.classList.remove('selected');
       
-      // 從遊戲板上移除配對成功的卡片
       setTimeout(() => {
         firstCard.div.style.visibility = 'hidden';
         secondCard.div.style.visibility = 'hidden';
@@ -1527,8 +1633,13 @@
 
     function unflipCards() {
       setTimeout(() => {
-        firstCard.div.classList.remove('flipped');
-        secondCard.div.classList.remove('flipped');
+        if (totalPairs === 5) {
+          firstCard.div.classList.remove('selected');
+          secondCard.div.classList.remove('selected');
+        } else {
+          firstCard.div.classList.remove('flipped');
+          secondCard.div.classList.remove('flipped');
+        }
         resetBoard();
       }, 1000);
     }
@@ -1540,7 +1651,6 @@
 
     // 按鈕事件
     function setupButtonEvents() {
-      // 桌面版按鈕
       btnNew.addEventListener('click', newGame);
       btnPreview.addEventListener('click', previewCards);
       btnStart.addEventListener('click', startGame);
@@ -1548,7 +1658,6 @@
       btnResume.addEventListener('click', resumeGame);
       btnHome.addEventListener('click', goHome);
       
-      // 手機版按鈕
       mobileNew.addEventListener('click', newGame);
       mobilePreview.addEventListener('click', previewCards);
       mobileStart.addEventListener('click', startGame);
@@ -1556,7 +1665,6 @@
       mobileResume.addEventListener('click', resumeGame);
       mobileHome.addEventListener('click', goHome);
       
-      // 難度選擇事件
       pairCountSelect.addEventListener('change', newGame);
     }
     
@@ -1571,7 +1679,7 @@
     }
     
     function resumeGame() {
-      if (isPreviewMode) return; // 預覽模式下不能繼續遊戲
+      if (isPreviewMode) return;
       resumeTimer();
       isPaused = false;
       btnPause.style.display = '';
@@ -1582,7 +1690,6 @@
     }
     
     function goHome() {
-      // 清除所有計時器
       if (timerInterval) clearInterval(timerInterval);
       if (previewTimer) clearInterval(previewTimer);
       
@@ -1593,6 +1700,7 @@
     function init() {
       loadBest();
       setupButtonEvents();
+      updateProgress();
       newGame();
     }
 
