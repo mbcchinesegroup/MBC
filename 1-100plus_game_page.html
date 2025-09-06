@@ -1054,7 +1054,7 @@
 { "id": 400, "text": "天若有情天亦老，人間正道是滄桑。", "source": "毛澤東《七律・人民解放軍占領南京》" }
     ];
 
-    // 遊戲狀態
+   // 遊戲狀態
     let cards = [];
     let firstCard = null, secondCard = null;
     let lockBoard = false;
@@ -1063,7 +1063,8 @@
     let selectedQuotes = []; // 當前選中的名句
     let totalCompleted = 0; // 總完成配對數
     const TOTAL_QUOTES = 100; // 總共需要完成100組
-
+    let practiceModeTimerStarted = false;
+    
     // 計時器狀態
     let timerInterval = null;
     let startTime = 0;
@@ -1135,9 +1136,9 @@
     }
 
     // 初始化答案欄
-    function initAnswerBoard() {
+     function initAnswerBoard() {
       answerContainerEl.innerHTML = '';
-      selectedQuotes.forEach((quote, index) => {  // 添加index參數
+      selectedQuotes.forEach((quote) => {
         const pairDiv = document.createElement('div');
         pairDiv.className = 'answer-pair';
         pairDiv.id = `answer-pair-${quote.id}`;
@@ -1145,7 +1146,7 @@
         // 添加序號（初始隱藏）
         const numberDiv = document.createElement('div');
         numberDiv.className = 'pair-number';
-        numberDiv.textContent = index + 1;  // 使用索引+1作為顯示序號
+        numberDiv.textContent = quote.id;  // 使用索引+1作為顯示序號
         numberDiv.style.display = 'none';
         
         const textDiv = document.createElement('div');
@@ -1329,7 +1330,120 @@
         return;
       }
       
-      newGame();
+      // 練習模式下不暫停計時器，直接加載下一組
+      if (totalPairs === 5) {
+        newGameWithoutResettingTimer();
+      } else {
+        // 其他模式下暫停計時器
+        pauseTimer();
+        newGame();
+      }
+    }
+
+    // 開新局（不重置計時器）
+    function newGameWithoutResettingTimer() {
+      statusEl.textContent = '練習模式 - 所有卡片已翻開，請點擊配對';
+      matchedCount = 0;
+      firstCard = null; 
+      secondCard = null; 
+      lockBoard = false;
+      isPreviewMode = false;
+      hasPreviewed = false;
+
+      if (previewTimer) {
+        clearInterval(previewTimer);
+        previewTimer = null;
+      }
+      
+      const timerDiv = document.getElementById('preview-timer');
+      if (timerDiv) {
+        timerDiv.remove();
+      }
+
+      totalPairs = parseInt(pairCountSelect.value);
+      totalPairsEl.textContent = totalPairs;
+      pairsEl.textContent = '0';
+
+      if (totalPairs === 50) {
+        extremeWarningEl.style.display = 'block';
+        boardEl.classList.add('extreme-mode');
+      } else {
+        extremeWarningEl.style.display = 'none';
+        boardEl.classList.remove('extreme-mode');
+      }
+
+      selectedQuotes = pickRandomQuotes(totalPairs);
+      initAnswerBoard();
+
+      cards = [];
+      selectedQuotes.forEach((item) => {
+        cards.push({ id: item.id, type: 'text', value: item.text });
+        cards.push({ id: item.id, type: 'source', value: item.source });
+      });
+      shuffle(cards);
+
+      boardEl.innerHTML = '';
+      cards.forEach((card, i) => {
+        const div = document.createElement('div');
+        div.className = 'card practice-mode';
+        div.dataset.idx = i;
+        div.dataset.id = card.id;
+        div.dataset.type = card.type;
+        
+        const cardFront = document.createElement('div');
+        cardFront.className = 'card-front';
+        cardFront.innerText = '翻牌';
+        
+        const cardBack = document.createElement('div');
+        cardBack.className = 'card-back';
+        cardBack.innerText = card.value;
+        
+        div.appendChild(cardFront);
+        div.appendChild(cardBack);
+        
+        if (totalPairs === 5) {
+          div.classList.add('flipped');
+        }
+        
+        boardEl.appendChild(div);
+      });
+
+      if (totalPairs <= 5) {
+        boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
+        statusEl.textContent = `練習模式 - 已完成 ${totalCompleted}/100`;
+      } else if (totalPairs <= 8) {
+        boardEl.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      } else if (totalPairs <= 10) {
+        boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
+      } else if (totalPairs === 50) {
+        boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
+      }
+      
+      // 練習模式下不重置計時器
+      if (totalPairs > 5 && totalPairs !== 50) {
+        btnPreview.style.display = '';
+        btnStart.style.display = 'none';
+        mobilePreview.style.display = '';
+        mobileStart.style.display = 'none';
+        statusEl.textContent = '您可以先查看卡片內容';
+      } else if (totalPairs === 50) {
+        btnPreview.style.display = '';
+        btnStart.style.display = 'none';
+        mobilePreview.style.display = '';
+        mobileStart.style.display = 'none';
+        statusEl.textContent = '終極困難模式 - 請先查看卡片';
+      } else {
+        btnPreview.style.display = 'none';
+        btnStart.style.display = 'none';
+        mobilePreview.style.display = 'none';
+        mobileStart.style.display = 'none';
+        statusEl.textContent = '練習模式 - 所有卡片已翻開，請點擊配對';
+      }
+      
+      btnPause.style.display = '';
+      mobilePause.style.display = '';
+      
+      bindCardEvents();
     }
 
     // 開新局
@@ -1650,21 +1764,30 @@
 
     // 按鈕事件
     function setupButtonEvents() {
-      btnNew.addEventListener('click', newGame);
+      btnNew.addEventListener('click', function() {
+        totalCompleted = 0;
+        newGame();
+      });
       btnPreview.addEventListener('click', previewCards);
       btnStart.addEventListener('click', startGame);
       btnPause.addEventListener('click', pauseGame);
       btnResume.addEventListener('click', resumeGame);
       btnHome.addEventListener('click', goHome);
       
-      mobileNew.addEventListener('click', newGame);
+      mobileNew.addEventListener('click', function() {
+        totalCompleted = 0;
+        newGame();
+      });
       mobilePreview.addEventListener('click', previewCards);
       mobileStart.addEventListener('click', startGame);
       mobilePause.addEventListener('click', pauseGame);
       mobileResume.addEventListener('click', resumeGame);
       mobileHome.addEventListener('click', goHome);
       
-      pairCountSelect.addEventListener('change', newGame);
+      pairCountSelect.addEventListener('change', function() {
+        totalCompleted = 0;
+        newGame();
+      });
     }
     
     function pauseGame() {
@@ -1692,7 +1815,7 @@
       if (timerInterval) clearInterval(timerInterval);
       if (previewTimer) clearInterval(previewTimer);
       
-      window.location.href = "https://mbcchinesegroup.github.io/MBC/400homepage_%E5%84%AA%E5%8C%96.html";
+      window.location.href = "https://mbcchinesegroup.github.io/MBC/400homepage.html";
     }
 
     // 初始化
