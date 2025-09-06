@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>階階400名句配對消消樂遊戲</title>
+  <title>進階400名句配對消消樂遊戲</title>
   <style>
-    body {
+     body {
       font-family: "Microsoft JhengHei", Arial, sans-serif;
       background: linear-gradient(135deg, #f4f8fb 0%, #e0eaf8 100%);
       margin: 0; padding: 0;
@@ -32,7 +32,7 @@
       ;
     }
     
-    h1 { 
+  h1 { 
       margin: 20px 0 6px; 
       color: #1976d2;
       text-align: center;
@@ -566,6 +566,16 @@
     .card.practice-mode.selected {
       box-shadow: 0 0 0 3px #ff9800;
     }
+    
+    /* 終極困難模式專用樣式 */
+    .extreme-mode .card {
+      height: 80px;
+      font-size: 11px;
+    }
+    
+    .extreme-mode .card-back {
+      font-size: 10px;
+    }
   </style>
 </head>
 <body class="no-select">
@@ -578,11 +588,11 @@
  </div>
 <h1>中文組</h1>
     <h1>進階400名句配對消消樂戲</h1>
-    <div class="topbar">
+     <div class="topbar">
       <div class="stat">計時：<span id="timer">00:00.0</span></div>
       <div class="stat">配對：<span id="pairs">0</span>/<span id="total-pairs">5</span></div>
       <div class="stat">進度：<span id="progress">0</span>/100</div>
-      <div class="stat">最佳：<span id="best">—</span></div>
+      <div class.="stat">最佳：<span id="best">—</span></div>
     </div>
 
     <!-- 進度條 -->
@@ -616,7 +626,7 @@
       <button id="btn-pause" class="btn" style="display:none;">暫停</button>
       <button id="btn-resume" class="btn" style="display:none;">繼續</button>
     </div>
-    <div class="note">提示：練習模式下所有卡片一開始就是翻開的，點擊卡片後開始計時。完成5組後會自動加載新的5組，直到完成100組。</div>
+    <div class="note">提示：練習模式下所有卡片一開始就是翻開的，點擊卡片後開始計時。完成5組後會自動加載新的5組，直到完成100組。中等及困難模式有一次查看卡片。</div>
 
     <div class="game-container">
       <div id="game-board"></div>
@@ -1356,8 +1366,10 @@
 
       if (totalPairs === 50) {
         extremeWarningEl.style.display = 'block';
+        boardEl.classList.add('extreme-mode');
       } else {
         extremeWarningEl.style.display = 'none';
+        boardEl.classList.remove('extreme-mode');
       }
 
       selectedQuotes = pickRandomQuotes(totalPairs);
@@ -1405,11 +1417,6 @@
         boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
       } else if (totalPairs === 50) {
         boardEl.style.gridTemplateColumns = 'repeat(5, 1fr)';
-        const cardElements = boardEl.querySelectorAll('.card');
-        cardElements.forEach(card => {
-          card.style.height = '80px';
-          card.style.fontSize = '11px';
-        });
       }
 
       resetTimer();
