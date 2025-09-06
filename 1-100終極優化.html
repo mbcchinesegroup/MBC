@@ -1112,40 +1112,32 @@
 
     // 取隨機名句組
     function pickRandomQuotes(num) {
-      // 練習模式：每次隨機取5組
-      if (num === 5) {
-        const availableQuotes = [...quotes];
-        const selected = [];
-        
-        // 隨機選擇5個不重複的名句
-        while (selected.length < 5 && availableQuotes.length > 0) {
-          const randomIndex = Math.floor(Math.random() * availableQuotes.length);
-          selected.push(availableQuotes[randomIndex]);
-          availableQuotes.splice(randomIndex, 1);
-        }
-        
-        return selected;
-      }
-      
       // 終極困難模式使用50組不重複名句
       if (num === 50) {
-        return [...quotes];
+        // 創建一個副本並洗牌，然後取前50個
+        const shuffledQuotes = [...quotes];
+        shuffle(shuffledQuotes);
+        return shuffledQuotes.slice(0, 50);
       }
       
-      // 確保不超過可用名句數量
+      // 練習模式：每次隨機取指定組數
       const availableQuotes = [...quotes];
-      if (num > availableQuotes.length) {
-        num = availableQuotes.length;
+      const selected = [];
+      
+      // 隨機選擇指定數量的不重複名句
+      while (selected.length < num && availableQuotes.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableQuotes.length);
+        selected.push(availableQuotes[randomIndex]);
+        availableQuotes.splice(randomIndex, 1);
       }
       
-      const indices = shuffle([...Array(availableQuotes.length).keys()]);
-      return indices.slice(0, num).map(i => availableQuotes[i]);
+      return selected;
     }
 
     // 初始化答案欄
     function initAnswerBoard() {
       answerContainerEl.innerHTML = '';
-      selectedQuotes.forEach((quote) => {
+      selectedQuotes.forEach((quote, index) => {  // 添加index參數
         const pairDiv = document.createElement('div');
         pairDiv.className = 'answer-pair';
         pairDiv.id = `answer-pair-${quote.id}`;
@@ -1153,7 +1145,7 @@
         // 添加序號（初始隱藏）
         const numberDiv = document.createElement('div');
         numberDiv.className = 'pair-number';
-        numberDiv.textContent = quote.id;
+        numberDiv.textContent = index + 1;  // 使用索引+1作為顯示序號
         numberDiv.style.display = 'none';
         
         const textDiv = document.createElement('div');
