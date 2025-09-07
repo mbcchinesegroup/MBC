@@ -24,11 +24,18 @@
     }
  
     .container {
-      width: 95%;
+     width: 95%;
       max-width: 1200px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      background: #e0eaf8;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(30, 58, 138, 0.15);
+      padding: 30px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.8s ease;
     }
     
     .header {
@@ -36,11 +43,18 @@
       margin-bottom: 15px;
       width: 100%;
     }
+
+   .footer {
+      margin-top: 30px;
+      color: #1976d2;
+      font-size: 0.9rem;
+      text-align: center;
+    }
    
       /* 半透明背景Logo */
     .logo-background {
       position: fixed;
-      top: 50%;
+      top: 30%;
       left: 50%;
       transform: translate(-50%, -50%);
       opacity: 0.2; /* 半透明效果 */
@@ -601,7 +615,11 @@
     <button id="mobile-pause" class="mobile-btn">暫停</button>
     <button id="mobile-resume" class="mobile-btn" style="display:none;">繼續</button>
   </div>
-  
+ 
+   <div class="footer">
+    © 2025 名句配對消消樂 | 中文組與電腦組聯合設計 | 澳門浸信中學
+  </div>
+ 
   <script>
     // 完整的名句列表（帶有序號）
     const quotes = [
