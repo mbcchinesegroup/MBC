@@ -133,6 +133,17 @@
       font-size: 22px;
       animation: pulse 2s infinite;
     }
+
+    .train-button-green {
+      background: linear-gradient(145deg, #52ff52, 	#2fd32f);
+      box-shadow: 0 5px 15px rgba(82, 255, 82, 0.3);
+      grid-column: 1 / -1;
+      margin-top: 10px;
+    }
+    
+    .train-button-green:hover {
+      box-shadow: 0 8px 20px rgba(255, 82, 82, 0.4);
+    }
     
     @keyframes pulse {
       0% { transform: scale(1); }
@@ -209,7 +220,7 @@
       <button id="3" class="nav-button">題庫：名句 201-300</button>
       <button id="4" class="nav-button">題庫：名句 301-400</button>
       <button id="5" class="nav-button">題庫：名句 1-400</button>
-      <button id="7" class="nav-button">練習模式</button>
+      <button id="7" class="nav-button train-button-green">練習模式</button>
       
       <button id="6" class="nav-button nav-button-red">
         <span class="warning-icon">⚠️</span>終極困難模式(慎入！！！）
