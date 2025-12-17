@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中級專員認證 - 隨機單選題測試</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0;
+        }
+        
+        .question-section {
+            flex: 3;
+            min-width: 300px;
+            padding: 30px;
+            border-right: 1px solid #eee;
+        }
+        
+        .stats-section {
+            flex: 1;
+            min-width: 250px;
+            padding: 25px;
+            background-color: #f9fafc;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-number {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            background-color: #eef2f7;
+            padding: 8px 16px;
+            border-radius: 50px;
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+        
+        .options-container {
+            margin-bottom: 30px;
+        }
+        
+        .option {
+            display: block;
+            padding: 16px 20px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.05rem;
+        }
+        
+        .option:hover {
+            background-color: #edf2ff;
+            border-color: #b8c7ff;
+            transform: translateY(-2px);
+        }
+        
+        .option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            color: #1565c0;
+        }
+        
+        .option.correct {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        
+        .option.wrong {
+            background-color: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1976d2;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-3px);
+        }
+        
+        .btn-success {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #388e3c;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .explanation-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f7ff;
+            border-radius: 10px;
+            border-left: 4px solid #2196f3;
+            display: none;
+        }
+        
+        .explanation-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1565c0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .explanation-text {
+            color: #37474f;
+            line-height: 1.7;
+        }
+        
+        .stats-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+        
+        .stats-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .stats-label {
+            color: #666;
+        }
+        
+        .stats-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 25px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .question-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .question-list-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        
+        .question-list-item:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .question-list-item.active {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .question-list-item.answered {
+            background-color: #c8e6c9;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+        }
+        
+        .correct-answer {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #e8f5e9;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #2e7d32;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .question-section {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-graduation-cap"></i> 中級專員認證測試系統</h1>
+            <p class="subtitle">隨機單選題測試平台</p>
+        </header>
+        
+        <div class="content">
+            <div class="question-section">
+                <div class="question-header">
+                    <div class="question-number">題目 #<span id="current-q">1</span> / 50</div>
+                    <div id="question-tags">會展基礎概念</div>
+                </div>
+                
+                <div class="question-text" id="question-text">
+                    題目載入中...
+                </div>
+                
+                <div class="options-container" id="options-container">
+                    <!-- 選項將在這裡動態生成 -->
+                </div>
+                
+                <div class="correct-answer" id="correct-answer">
+                    <i class="fas fa-check-circle"></i> 正確答案: <span id="correct-answer-text"></span>
+                </div>
+                
+                <div class="explanation-container" id="explanation-container">
+                    <div class="explanation-title">
+                        <i class="fas fa-lightbulb"></i> 解析
+                    </div>
+                    <div class="explanation-text" id="explanation-text">
+                        解析內容將在這裡顯示
+                    </div>
+                </div>
+                
+                <div class="buttons-container">
+                    <button class="btn btn-secondary" id="prev-btn">
+                        <i class="fas fa-arrow-left"></i> 上一題
+                    </button>
+                    
+                    <button class="btn btn-primary" id="next-btn">
+                        下一題 <i class="fas fa-arrow-right"></i>
+                    </button>
+                    
+                    <button class="btn btn-success" id="submit-btn">
+                        <i class="fas fa-check"></i> 提交答案
+                    </button>
+                    
+                    <button class="btn btn-secondary" id="random-btn">
+                        <i class="fas fa-random"></i> 隨機選題
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-section">
+                <div class="stats-card">
+                    <div class="stats-title">
+                        <i class="fas fa-chart-line"></i> 答題統計
+                    </div>
+                    
+                    <div class="stats-item">
+                        <span class="stats-label">已答題數:</span>
+                        <span class="stats-value" id="answered-count">0</span>
+                    </div>
+                    
+                    <div class="stats-item">
+                        <span class="stats-label">正確率:</span>
+                        <span class="stats-value" id="accuracy-rate">0%</span>
+                    </div>
+                    
+                    <div class="stats-item">
+                        <span class="stats-label">當前得分:</span>
+                        <span class="stats-value" id="current-score">0</span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress" id="progress-bar"></div>
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-title">
+                        <i class="fas fa-list-ol"></i> 題目導航
+                    </div>
+                    <div class="question-list" id="question-list">
+                        <!-- 題目列表將在這裡動態生成 -->
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-title">
+                        <i class="fas fa-info-circle"></i> 使用說明
+                    </div>
+                    <div style="font-size: 0.9rem; color: #666; line-height: 1.5;">
+                        <p>1. 點擊選項選擇答案</p>
+                        <p>2. 點擊"提交答案"檢查對錯</p>
+                        <p>3. 點擊"隨機選題"隨機抽取題目</p>
+                        <p>4. 點擊題目編號可快速跳轉</p>
+                        <p>5. 綠色題目表示已回答</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 中級專員認證測試系統 | 請勿外傳</p>
+        </footer>
+    </div>
+
+    <script>
+        // 題目數據 - 基於《中級專員認證.pdf》中的50道單選題
+        const questions = [
+            {
+                id: 1,
+                question: "會展的本質是什麼？",
+                options: [
+                    "A) 純粹的文化交流活動",
+                    "B) 企業或行業發起的線下行銷傳播活動",
+                    "C) 政府主導的公益活動",
+                    "D) 僅限於貿易洽談的商業行為"
+                ],
+                answer: "B",
+                explanation: "文件中定義會展為'企業或行業發起的線下形態的行銷傳播活動'。",
+                category: "會展基礎概念"
+            },
+            {
+                id: 2,
+                question: "MICE 中的 'C' 代表什麼？",
+                options: [
+                    "A) Corporate Meetings",
+                    "B) Conference",
+                    "C) Consumer Exhibition",
+                    "D) Convention"
+                ],
+                answer: "B",
+                explanation: "MICE 中 C 代表 Conference（協會或社團組織會議）。",
+                category: "會展基礎概念"
+            },
+            {
+                id: 3,
+                question: "媒體機構在會展中的作用不包括以下哪項？",
+                options: [
+                    "A) 提供新聞報道",
+                    "B) 提升展會曝光度",
+                    "C) 直接銷售展位",
+                    "D) 參與開幕式與閉幕式"
+                ],
+                answer: "C",
+                explanation: "媒體不直接銷售展位，主要負責報道與宣傳。",
+                category: "會展基礎概念"
+            },
+            {
+                id: 4,
+                question: "會展服務與管理的客體是指：",
+                options: [
+                    "A) 主辦方",
+                    "B) 承辦機構",
+                    "C) 參展商與觀眾",
+                    "D) 媒體機構"
+                ],
+                answer: "C",
+                explanation: "會展服務與管理的客體是需求者，即參展商與觀眾。",
+                category: "會展服務與管理"
+            },
+            {
+                id: 5,
+                question: "參展商在會展中的雙重角色是：",
+                options: [
+                    "A) 主辦方與承辦方",
+                    "B) 需求者與供給者",
+                    "C) 媒體與觀眾",
+                    "D) 贊助商與合作夥伴"
+                ],
+                answer: "B",
+                explanation: "參展商既是需求者（購買服務）也是供給者（展示產品）。",
+                category: "會展參與方"
+            },
+            {
+                id: 6,
+                question: "以下哪項不是參展商參展的主要目的？",
+                options: [
+                    "A) 推廣品牌與產品",
+                    "B) 尋找潛在客戶",
+                    "C) 舉辦新聞發布會",
+                    "D) 了解市場趨勢"
+                ],
+                answer: "C",
+                explanation: "舉辦新聞發布會不是參展商的主要參展目的。",
+                category: "會展參與方"
+            },
+            {
+                id: 7,
+                question: "專業觀眾的主要目的不包括：",
+                options: [
+                    "A) 採購產品或服務",
+                    "B) 旅遊觀光",
+                    "C) 了解行業動態",
+                    "D) 與同行交流"
+                ],
+                answer: "B",
+                explanation: "旅遊觀光不是專業觀眾的主要目的。",
+                category: "會展參與方"
+            },
+            {
+                id: 8,
+                question: "在以下哪類展覽會中，普通觀眾比例最高？",
+                options: [
+                    "A) 貿易展覽會",
+                    "B) 綜合性展覽會",
+                    "C) 消費性展覽會",
+                    "D) 專業展覽會"
+                ],
+                answer: "C",
+                explanation: "消費性展覽會中普通觀眾佔絕大多數。",
+                category: "展覽會類型"
+            },
+            {
+                id: 9,
+                question: "標準展位的常見尺寸為：",
+                options: [
+                    "A) 3米×3米",
+                    "B) 6米×6米",
+                    "C) 4米×4米",
+                    "D) 5米×5米"
+                ],
+                answer: "A",
+                explanation: "標準展位通常為 3米×3米。",
+                category: "展位規劃"
+            },
+            {
+                id: 10,
+                question: "以下哪個組織提供 CEM（Certified in Exhibition Management）認證？",
+                options: [
+                    "A) EIC",
+                    "B) IAEE",
+                    "C) UFI",
+                    "D) IAPCO"
+                ],
+                answer: "B",
+                explanation: "IAEE 提供 CEM 認證。",
+                category: "會展組織與認證"
+            },
+            {
+                id: 11,
+                question: "會議的定義中不包括以下哪一項？",
+                options: [
+                    "A) 建立人際關係網絡",
+                    "B) 教育或探討商務話題",
+                    "C) 純娛樂活動",
+                    "D) 由組織或企業發起"
+                ],
+                answer: "C",
+                explanation: "會議目的不包括純娛樂活動。",
+                category: "會議管理"
+            },
+            {
+                id: 12,
+                question: "大型會議的出席人數範圍是：",
+                options: [
+                    "A) 100～1000人",
+                    "B) 1000～10000人",
+                    "C) 5000～20000人",
+                    "D) 10000人以上"
+                ],
+                answer: "B",
+                explanation: "大型會議定義為 1000～10000人。",
+                category: "會議管理"
+            },
+            {
+                id: 13,
+                question: "會議收入的主要來源不包括：",
+                options: [
+                    "A) 會務費",
+                    "B) 贊助與廣告",
+                    "C) 政府扶持",
+                    "D) 展位銷售"
+                ],
+                answer: "D",
+                explanation: "展位銷售屬於展覽會收入，非會議收入。",
+                category: "會議管理"
+            },
+            {
+                id: 14,
+                question: "展覽淨面積是指：",
+                options: [
+                    "A) 所有展廳總面積",
+                    "B) 參展商實際使用展台面積之和",
+                    "C) 包括餐飲區與辦公區",
+                    "D) 展覽會宣傳區域面積"
+                ],
+                answer: "B",
+                explanation: "展覽淨面積為參展商實際使用展台面積之和。",
+                category: "展覽規劃"
+            },
+            {
+                id: 15,
+                question: "展覽會全稱的結構中，'時間標識詞' 位於：",
+                options: [
+                    "A) 最前面",
+                    "B) 中間",
+                    "C) 最後",
+                    "D) 可選項"
+                ],
+                answer: "A",
+                explanation: "時間標識詞通常位於展覽會全稱最前面。",
+                category: "展覽規劃"
+            },
+            {
+                id: 16,
+                question: "選擇會展場地時，哪一項不是主要考慮因素？",
+                options: [
+                    "A) 場地大小",
+                    "B) 硬體設施",
+                    "C) 周邊房價",
+                    "D) 交通便捷性"
+                ],
+                answer: "C",
+                explanation: "周邊房價不是選擇會展場地的直接考慮因素。",
+                category: "展覽規劃"
+            },
+            {
+                id: 17,
+                question: "消費展覽會的辦展頻率一般為：",
+                options: [
+                    "A) 一年一次",
+                    "B) 一年兩次或多次",
+                    "C) 兩年一次",
+                    "D) 三年一次"
+                ],
+                answer: "B",
+                explanation: "消費展覽會可一年舉辦兩次或多次。",
+                category: "展覽策劃"
+            },
+            {
+                id: 18,
+                question: "招展函中不包括以下哪項內容？",
+                options: [
+                    "A) 展品範圍",
+                    "B) 展位價格",
+                    "C) 參展商名單",
+                    "D) 聯絡方式"
+                ],
+                answer: "C",
+                explanation: "招展函中不包含參展商名單。",
+                category: "展覽行銷"
+            },
+            {
+                id: 19,
+                question: "獨家代理與排他代理的主要區別在於：",
+                options: [
+                    "A) 是否允許主辦方在該區域招展",
+                    "B) 是否收取代理費",
+                    "C) 是否負責展位搭建",
+                    "D) 是否提供廣告支援"
+                ],
+                answer: "A",
+                explanation: "排他代理允許主辦方在該區域招展，獨家代理則否。",
+                category: "展覽行銷"
+            },
+            {
+                id: 20,
+                question: "節慶活動的主要特點是：",
+                options: [
+                    "A) 無主題性",
+                    "B) 純商業性",
+                    "C) 主題性鮮明",
+                    "D) 僅限文化活動"
+                ],
+                answer: "C",
+                explanation: "節慶活動具有鮮明的主題性。",
+                category: "節慶活動"
+            },
+            {
+                id: 21,
+                question: "MICE 中的 'E' 代表什麼？",
+                options: [
+                    "A) Event",
+                    "B) Exhibition and Event",
+                    "C) Expo",
+                    "D) Entertainment"
+                ],
+                answer: "B",
+                explanation: "MICE 中 E 代表 Exhibition and Event（展覽與事件節事活動）。",
+                category: "會展基礎概念"
+            },
+            {
+                id: 22,
+                question: "特裝展位的最小常見尺寸為：",
+                options: [
+                    "A) 3米×3米",
+                    "B) 4米×4米",
+                    "C) 6米×6米",
+                    "D) 8米×8米"
+                ],
+                answer: "C",
+                explanation: "特裝展位最小常見尺寸為 6米×6米。",
+                category: "展位規劃"
+            },
+            {
+                id: 23,
+                question: "以下哪個協會是'展覽業界唯一的全球化組織'？",
+                options: [
+                    "A) EIC",
+                    "B) IAPCO",
+                    "C) UFI",
+                    "D) IAEE"
+                ],
+                answer: "C",
+                explanation: "UFI 被描述為'展覽業界唯一的全球化組織'。",
+                category: "會展組織與認證"
+            },
+            {
+                id: 24,
+                question: "展覽會項目一般不需要以下哪個部門？",
+                options: [
+                    "A) 銷售部",
+                    "B) 市場部",
+                    "C) 生產部",
+                    "D) 公共關係部"
+                ],
+                answer: "C",
+                explanation: "展覽會項目一般不需要生產部。",
+                category: "展覽策劃"
+            },
+            {
+                id: 25,
+                question: "按'縱向法'設計展品範圍，是依據什麼進行細分？",
+                options: [
+                    "A) 產業鏈",
+                    "B) 產品分類標準",
+                    "C) 參展商國籍",
+                    "D) 市場價格"
+                ],
+                answer: "B",
+                explanation: "縱向法依據行業產品分類標準進行垂直細分。",
+                category: "展覽規劃"
+            },
+            {
+                id: 26,
+                question: "選擇會展場地時，哪一點對專業展覽尤其重要？",
+                options: [
+                    "A) 場地裝修風格",
+                    "B) 周邊酒店客房供應",
+                    "C) 停車場大小",
+                    "D) 餐飲價格"
+                ],
+                answer: "B",
+                explanation: "專業展覽需考慮周邊酒店客房供應。",
+                category: "展覽規劃"
+            },
+            {
+                id: 27,
+                question: "專業類展覽會的辦展頻率通常為：",
+                options: [
+                    "A) 一年一屆",
+                    "B) 一年兩屆",
+                    "C) 兩年一屆",
+                    "D) 三年一屆"
+                ],
+                answer: "A",
+                explanation: "專業展覽會一般為一年一屆。",
+                category: "展覽策劃"
+            },
+            {
+                id: 28,
+                question: "展覽會最主要的銷售產品是：",
+                options: [
+                    "A) 廣告位",
+                    "B) 贊助方案",
+                    "C) 展位",
+                    "D) 門票"
+                ],
+                answer: "C",
+                explanation: "展位是展覽會最主要的銷售產品。",
+                category: "展覽行銷"
+            },
+            {
+                id: 29,
+                question: "展位圖規劃中，主通道寬度應不少於：",
+                options: [
+                    "A) 3米",
+                    "B) 4米",
+                    "C) 5米",
+                    "D) 6米"
+                ],
+                answer: "D",
+                explanation: "主通道寬度不少於 6 米。",
+                category: "展覽規劃"
+            },
+            {
+                id: 30,
+                question: "招展函中'展會特點'部分主要目的是：",
+                options: [
+                    "A) 列出展品分類",
+                    "B) 說明展會亮點與參展效益",
+                    "C) 提供價格清單",
+                    "D) 告知聯絡方式"
+                ],
+                answer: "B",
+                explanation: "'展會特點'旨在突出亮點和吸引參展商。",
+                category: "展覽行銷"
+            },
+            {
+                id: 31,
+                question: "主辦方在某一地區只委託一家代理商，且自己也無法在該地區招展，這屬於：",
+                options: [
+                    "A) 排他代理",
+                    "B) 獨家代理",
+                    "C) 一般代理",
+                    "D) 聯合代理"
+                ],
+                answer: "B",
+                explanation: "獨家代理具有排他性，連主辦方也不能在該區域招展。",
+                category: "展覽行銷"
+            },
+            {
+                id: 32,
+                question: "展覽會行銷的'文案類'內容不包含：",
+                options: [
+                    "A) 新聞稿",
+                    "B) 參展手冊",
+                    "C) 宣傳海報設計",
+                    "D) 社交媒體貼文"
+                ],
+                answer: "C",
+                explanation: "宣傳海報設計屬於'圖片類'行銷內容。",
+                category: "展覽行銷"
+            },
+            {
+                id: 33,
+                question: "適合在社交媒體快速傳播的視頻類型是：",
+                options: [
+                    "A) 宣傳片（5-10分鐘）",
+                    "B) 紀錄片（30分鐘以上）",
+                    "C) 短視頻（1分鐘內）",
+                    "D) 直播（數小時）"
+                ],
+                answer: "C",
+                explanation: "短視頻更適合社交媒體的快速傳播特性。",
+                category: "展覽行銷"
+            },
+            {
+                id: 34,
+                question: "微信公眾號'發圈'指的是：",
+                options: [
+                    "A) 發送給特定個人",
+                    "B) 發佈到微信朋友圈",
+                    "C) 群發給所有訂閱者",
+                    "D) 在微信群組中發送"
+                ],
+                answer: "B",
+                explanation: "'發圈'即發佈到微信朋友圈。",
+                category: "展覽行銷"
+            },
+            {
+                id: 35,
+                question: "以下哪項服務通常不會外包給第三方？",
+                options: [
+                    "A) 展位銷售與合約簽訂",
+                    "B) 展品物流運輸",
+                    "C) 開幕典禮執行",
+                    "D) 現場餐飲供應"
+                ],
+                answer: "A",
+                explanation: "展位銷售與合約簽訂涉及核心商業關係，通常由主辦方核心團隊負責。",
+                category: "會展服務"
+            },
+            {
+                id: 36,
+                question: "展覽會收入中，除展位費外，其餘收入通常佔比：",
+                options: [
+                    "A) 低於10%",
+                    "B) 約30%",
+                    "C) 約50%",
+                    "D) 超過70%"
+                ],
+                answer: "A",
+                explanation: "文件指出展位費佔比通常在90%以上，其餘收入佔比低。",
+                category: "會展財務"
+            },
+            {
+                id: 37,
+                question: "節慶活動的起源通常與以下哪項無關？",
+                options: [
+                    "A) 宗教祭祀",
+                    "B) 農事生產",
+                    "C) 歷法",
+                    "D) 現代商業促銷"
+                ],
+                answer: "D",
+                explanation: "節日起源於傳統，現代商業促銷是其衍生功能之一。",
+                category: "節慶活動"
+            },
+            {
+                id: 38,
+                question: "節慶活動對當地經濟的拉動作用，主要體現在哪個行業？",
+                options: [
+                    "A) 僅旅遊業",
+                    "B) 旅遊、餐飲、住宿、交通等多個行業",
+                    "C) 僅零售業",
+                    "D) 僅廣告業"
+                ],
+                answer: "B",
+                explanation: "節慶活動對當地經濟有多方面的拉動作用。",
+                category: "節慶活動"
+            },
+            {
+                id: 39,
+                question: "體驗經濟時代，節慶活動策劃應特別重視：",
+                options: [
+                    "A) 降低門票價格",
+                    "B) 遊客的體驗與參與感",
+                    "C) 邀請明星數量",
+                    "D) 活動歷史長短"
+                ],
+                answer: "B",
+                explanation: "體驗經濟時代，策劃需以遊客體驗為中心。",
+                category: "節慶活動"
+            },
+            {
+                id: 40,
+                question: "成功的節慶活動主題應：",
+                options: [
+                    "A) 模仿其他成功案例",
+                    "B) 與主辦地文化無關",
+                    "C) 每年隨機更換",
+                    "D) 清晰且與主辦地密切相關"
+                ],
+                answer: "D",
+                explanation: "成功的主題應根植於主辦地特色。",
+                category: "節慶活動"
+            },
+            {
+                id: 41,
+                question: "WBS（工作分解結構）主要用於：",
+                options: [
+                    "A) 財務預算",
+                    "B) 分解複雜項目為可管理的小任務",
+                    "C) 風險評估",
+                    "D) 人員招聘"
+                ],
+                answer: "B",
+                explanation: "WBS用於將複雜項目分解為更小、更易管理的工作單元。",
+                category: "項目管理"
+            },
+            {
+                id: 42,
+                question: "項目進度管理常用的'甘特圖'中，縱坐標代表：",
+                options: [
+                    "A) 時間",
+                    "B) 活動項目或工作內容",
+                    "C) 成本",
+                    "D) 資源數量"
+                ],
+                answer: "B",
+                explanation: "甘特圖縱坐標通常表示活動項目或具體工作。",
+                category: "項目管理"
+            },
+            {
+                id: 43,
+                question: "發生險情時，首要處理原則是：",
+                options: [
+                    "A) 追究責任",
+                    "B) 簡化問題，解決原點",
+                    "C) 等待上級指示",
+                    "D) 立即停止所有活動"
+                ],
+                answer: "B",
+                explanation: "處理險情的首要原則是抓住問題核心並解決。",
+                category: "風險管理"
+            },
+            {
+                id: 44,
+                question: "險情發生後，與媒體溝通的原則是：",
+                options: [
+                    "A) 隱瞞消息，避免恐慌",
+                    "B) 迅速公開，巧妙利用",
+                    "C) 不予回應",
+                    "D) 指責他人"
+                ],
+                answer: "B",
+                explanation: "應迅速、公開地與媒體溝通，以降低損失。",
+                category: "風險管理"
+            },
+            {
+                id: 45,
+                question: "對於颱風等不可抗力導致的重大險情，節慶主辦方應首先：",
+                options: [
+                    "A) 自行組織救援",
+                    "B) 配合政府進行搶險救援",
+                    "C) 向保險公司索賠",
+                    "D) 宣布活動取消並撤離"
+                ],
+                answer: "B",
+                explanation: "面對重大不可抗力，主辦方應配合政府專業救援力量。",
+                category: "風險管理"
+            },
+            {
+                id: 46,
+                question: "志願者培訓內容通常不包括：",
+                options: [
+                    "A) 文化旅遊資源基礎",
+                    "B) 文明禮儀知識",
+                    "C) 緊急救援知識",
+                    "D) 財務管理知識"
+                ],
+                answer: "D",
+                explanation: "志願者通常不負責財務管理工作。",
+                category: "人員管理"
+            },
+            {
+                id: 47,
+                question: "風險管理的第一步是：",
+                options: [
+                    "A) 風險識別",
+                    "B) 風險管理規劃",
+                    "C) 風險評價",
+                    "D) 風險應對"
+                ],
+                answer: "B",
+                explanation: "風險管理始於規劃階段。",
+                category: "風險管理"
+            },
+            {
+                id: 48,
+                question: "會展服務與管理的主體是誰？",
+                options: [
+                    "A) 參展商",
+                    "B) 專業觀眾",
+                    "C) 主辦方與承辦機構",
+                    "D) 媒體機構"
+                ],
+                answer: "C",
+                explanation: "主辦方和承辦機構是會展服務與管理的主體。",
+                category: "會展服務與管理"
+            },
+            {
+                id: 49,
+                question: "會議組織者不包括以下哪一類？",
+                options: [
+                    "A) 主辦單位",
+                    "B) 承辦單位",
+                    "C) 參展商",
+                    "D) 贊助單位"
+                ],
+                answer: "C",
+                explanation: "參展商是會議的服務對象，而非承辦者。",
+                category: "會議管理"
+            },
+            {
+                id: 50,
+                question: "旅行社在會議中通常不負責以下哪項？",
+                options: [
+                    "A) 學術議程安排",
+                    "B) 酒店預訂",
+                    "C) 交通安排",
+                    "D) 觀光活動"
+                ],
+                answer: "A",
+                explanation: "學術議程通常由會議主辦方或學術委員會負責。",
+                category: "會議管理"
+            }
+        ];
+
+        // 應用狀態管理
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let answeredQuestions = 0;
+        let correctAnswers = 0;
+
+        // DOM 元素
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const currentQEl = document.getElementById('current-q');
+        const questionTagsEl = document.getElementById('question-tags');
+        const explanationContainerEl = document.getElementById('explanation-container');
+        const explanationTextEl = document.getElementById('explanation-text');
+        const correctAnswerEl = document.getElementById('correct-answer');
+        const correctAnswerTextEl = document.getElementById('correct-answer-text');
+        const answeredCountEl = document.getElementById('answered-count');
+        const accuracyRateEl = document.getElementById('accuracy-rate');
+        const currentScoreEl = document.getElementById('current-score');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionListEl = document.getElementById('question-list');
+        
+        // 按鈕
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const randomBtn = document.getElementById('random-btn');
+
+        // 初始化
+        function init() {
+            displayQuestion(currentQuestionIndex);
+            updateStats();
+            generateQuestionList();
+            
+            // 事件監聽
+            prevBtn.addEventListener('click', goToPrevQuestion);
+            nextBtn.addEventListener('click', goToNextQuestion);
+            submitBtn.addEventListener('click', submitAnswer);
+            randomBtn.addEventListener('click', goToRandomQuestion);
+        }
+
+        // 顯示題目
+        function displayQuestion(index) {
+            const question = questions[index];
+            
+            // 更新題目資訊
+            questionTextEl.textContent = question.question;
+            currentQEl.textContent = question.id;
+            questionTagsEl.textContent = question.category;
+            
+            // 清除之前的選項
+            optionsContainerEl.innerHTML = '';
+            
+            // 添加新選項
+            question.options.forEach((option, i) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.textContent = option;
+                optionEl.dataset.value = option.charAt(0); // A, B, C, D
+                
+                // 如果使用者之前已回答過此題，顯示選擇狀態
+                if (userAnswers[index] === option.charAt(0)) {
+                    optionEl.classList.add('selected');
+                }
+                
+                optionEl.addEventListener('click', () => selectOption(optionEl, index));
+                optionsContainerEl.appendChild(optionEl);
+            });
+            
+            // 更新題目導航
+            updateQuestionList();
+            
+            // 隱藏解析和正確答案
+            explanationContainerEl.style.display = 'none';
+            correctAnswerEl.style.display = 'none';
+            
+            // 如果已回答過此題，顯示解析
+            if (userAnswers[index] !== null) {
+                showAnswerFeedback(index);
+            }
+            
+            // 更新按鈕狀態
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === questions.length - 1;
+        }
+
+        // 選擇選項
+        function selectOption(optionEl, questionIndex) {
+            // 如果已回答過此題，不允許更改
+            if (userAnswers[questionIndex] !== null) return;
+            
+            // 清除所有選項的選中狀態
+            const allOptions = optionsContainerEl.querySelectorAll('.option');
+            allOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // 選中當前選項
+            optionEl.classList.add('selected');
+            
+            // 保存使用者答案
+            userAnswers[questionIndex] = optionEl.dataset.value;
+            
+            // 更新已回答數量
+            updateStats();
+        }
+
+        // 提交答案
+        function submitAnswer() {
+            if (userAnswers[currentQuestionIndex] === null) {
+                alert('請先選擇一個答案！');
+                return;
+            }
+            
+            // 顯示答案反饋
+            showAnswerFeedback(currentQuestionIndex);
+            
+            // 更新統計
+            updateStats();
+        }
+
+        // 顯示答案反饋
+        function showAnswerFeedback(index) {
+            const question = questions[index];
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === question.answer;
+            
+            // 顯示正確答案
+            correctAnswerTextEl.textContent = question.answer;
+            correctAnswerEl.style.display = 'block';
+            
+            // 顯示解析
+            explanationTextEl.textContent = question.explanation;
+            explanationContainerEl.style.display = 'block';
+            
+            // 更新選項樣式（正確/錯誤）
+            const allOptions = optionsContainerEl.querySelectorAll('.option');
+            allOptions.forEach(optionEl => {
+                const optionValue = optionEl.dataset.value;
+                
+                // 清除之前的狀態
+                optionEl.classList.remove('correct', 'wrong');
+                
+                // 標記正確答案
+                if (optionValue === question.answer) {
+                    optionEl.classList.add('correct');
+                }
+                
+                // 標記使用者錯誤答案
+                if (optionValue === userAnswer && userAnswer !== question.answer) {
+                    optionEl.classList.add('wrong');
+                }
+            });
+            
+            // 如果答案正確，更新正確計數
+            if (isCorrect && !question.alreadyCounted) {
+                correctAnswers++;
+                question.alreadyCounted = true;
+            }
+            
+            // 更新題目列表
+            updateQuestionList();
+        }
+
+        // 更新統計資訊
+        function updateStats() {
+            // 計算已回答題目數
+            answeredQuestions = userAnswers.filter(answer => answer !== null).length;
+            
+            // 計算正確率
+            const accuracy = answeredQuestions > 0 ? Math.round((correctAnswers / answeredQuestions) * 100) : 0;
+            
+            // 計算當前得分（每題2分）
+            const score = correctAnswers * 2;
+            
+            // 計算進度
+            const progress = Math.round((answeredQuestions / questions.length) * 100);
+            
+            // 更新DOM
+            answeredCountEl.textContent = `${answeredQuestions} / ${questions.length}`;
+            accuracyRateEl.textContent = `${accuracy}%`;
+            currentScoreEl.textContent = `${score} / ${questions.length * 2}`;
+            progressBarEl.style.width = `${progress}%`;
+        }
+
+        // 生成題目列表
+        function generateQuestionList() {
+            questionListEl.innerHTML = '';
+            
+            questions.forEach((question, index) => {
+                const listItem = document.createElement('div');
+                listItem.className = 'question-list-item';
+                listItem.textContent = `題目 ${question.id}`;
+                listItem.dataset.index = index;
+                
+                if (index === currentQuestionIndex) {
+                    listItem.classList.add('active');
+                }
+                
+                if (userAnswers[index] !== null) {
+                    listItem.classList.add('answered');
+                }
+                
+                listItem.addEventListener('click', () => {
+                    currentQuestionIndex = index;
+                    displayQuestion(currentQuestionIndex);
+                });
+                
+                questionListEl.appendChild(listItem);
+            });
+        }
+
+        // 更新題目列表
+        function updateQuestionList() {
+            const listItems = questionListEl.querySelectorAll('.question-list-item');
+            listItems.forEach((item, index) => {
+                item.classList.remove('active');
+                if (userAnswers[index] !== null) {
+                    item.classList.add('answered');
+                } else {
+                    item.classList.remove('answered');
+                }
+                
+                if (index === currentQuestionIndex) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // 上一題
+        function goToPrevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex);
+            }
+        }
+
+        // 下一題
+        function goToNextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            }
+        }
+
+        // 隨機選題
+        function goToRandomQuestion() {
+            const newIndex = Math.floor(Math.random() * questions.length);
+            currentQuestionIndex = newIndex;
+            displayQuestion(currentQuestionIndex);
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
